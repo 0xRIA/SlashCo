@@ -10,9 +10,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "ババブーイ",
     "class": "CRYPTID",
     "danger": "MODERATE",
-    "attackType": "近接ダメージ (HP削り)",
+    "attackType": "近接攻撃 (通常2発で死亡 / 約5.5ダメージ)",
     "proximityClue": "ペチペチとした湿った足音、他プレイヤー追跡時の不気味な笑い声",
     "iconUrl": "./public/icons/slashers/bababooey.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/5/5a/Bababooey.png",
     "stats": {
       "intelligence": 80,
       "hearing": 75,
@@ -26,30 +27,30 @@ import React, { useState, useMemo } from 'react';
       "walkSpeed": "2.0 m/s",
       "patientSpeed": "0.8 m/s",
       "sneakSpeed": "1.5 m/s",
-      "chaseSpeed": "3.96 m/s (+0.24 m/s)",
+      "chaseSpeed": "3.96 m/s (+0.3 m/s)",
       "stunDuration": "9.5s",
       "angerTarget": "0.6x",
       "angerPassive": "0.1x",
       "angerChase": "0.3x"
     },
     "traits": [
-      "黒い体に不気味な模様が入った人型生物。暗闇でも比較的視認しやすい。",
-      "音やライトを感知すると足音を消し、両手を上げてゆっくりと忍び寄ってくる（巧妙さ75）。",
-      "【ANGER 50%】透明化能力を解禁。長時間プレイヤー未発見時に大音響と共に透明化（接触まで走れない）。接触でジャンプスケアを起こすダミークローンを配置。",
-      "【ANGER 60%】移動速度が通常時の1.2倍に上昇する。"
+      "黒い体に不気味な模様が入った人型生物。暗闇や遠目でも比較的視認しやすい。",
+      "音やライトの光を感知すると、両手を上げて足音を消しゆっくりと忍び寄ってくる（巧妙さ75）。",
+      "【ANGER 50%】2つの能力を解禁：①長時間プレイヤー未発見時に大音響と共に透明化（接触まで走れない）。接触でジャンプスケアを起こし透明化解除。②接触でジャンプスケアを引き起こす透明なダミークローンを配置。",
+      "【ANGER 60%】移動速度が通常時の1.2倍に上昇。"
     ],
     "tips": [
-      "聴力（75）が高いため、ガソリン缶を壁にぶつけたり不用意に走るのを控え、ライトもこまめに消灯する。",
+      "聴力（75）が高く音に敏感。ガソリン缶を壁にぶつけたり不用意に走るのを控え、ライトもこまめに消灯する。",
+      "接近時はペチペチとした足音や、他プレイヤー追跡時の笑い声を頼りに距離を取る。",
       "攻撃直後に一定時間立ち止まる硬直があるため、曲がり角の直前で被弾してから角を曲がると視線を切って撒きやすい。",
       "攻撃力が高く通常2発で死亡するため、HP管理と角を利用した視界切りチェイスが極めて有効。"
     ],
     "recommendedPerks": [
       "軽い足取り",
-      "沈む流し台",
       "健康",
+      "沈む流し台",
       "影産まれ"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/5/5a/Bababooey.png"
+    ]
   },
   {
     "id": "abomignat",
@@ -57,9 +58,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "アボミグナット",
     "class": "CRYPTID",
     "danger": "MODERATE",
-    "attackType": "近接攻撃",
-    "proximityClue": "虫のような低周波の羽音・這いずり音",
+    "attackType": "通常攻撃 (3.5ダメージ) / 突進攻撃 (6.0ダメージ)",
+    "proximityClue": "ザクザクとした足音、荒い鼻息",
     "iconUrl": "./public/icons/slashers/abomignat.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/97/S_abomignat.png",
     "stats": {
       "intelligence": 10,
       "hearing": 25,
@@ -73,29 +75,31 @@ import React, { useState, useMemo } from 'react';
       "walkSpeed": "2.0 m/s",
       "patientSpeed": "1.0 m/s",
       "sneakSpeed": "0.9 m/s",
-      "chaseSpeed": "4.0 m/s (+0.32 m/s)",
+      "chaseSpeed": "4.0 m/s (+0.4 m/s)",
       "stunDuration": "12.0s",
       "angerTarget": "0.5x",
       "angerPassive": "0.2x",
       "angerChase": "0.4x"
     },
     "traits": [
-      "知能（10）や聴力（25）は極めて低いが、直感（100）がMAX値の異形生物。",
-      "音がなくても直感によってプレイヤーの現在位置へ正確に目的地を設定して巡回してくる。",
-      "視野角が200°と広角だが、遠くを見る視力（30）は低い。"
+      "時々視野角が45度になり、3.5 m/sの速度で這うように移動する。",
+      "【ANGER上昇時】2種類の特殊攻撃を使用：",
+      "・「飛び掛かり」：唸り声をあげた後、前方を両手でひっかく（短いクールタイムあり）。",
+      "・「突進」：通常攻撃の後に四つん這いになり高速で突進を行う（素手では回避不能、ダメージ6）。"
     ],
     "tips": [
-      "知能が10と最低ランクのため、ガラス瓶を投げての陽動やロッカーへの隠蔽が100%成功する。",
-      "直感が高いため「何もないのに近づいてくる」ことが多いが、ロッカーや遮蔽物に隠れていれば素通りさせやすい。",
-      "スタン時間が12秒と長いため、近接されたらスタンアイテムで時間を稼ごう。"
+      "プレイヤーを視認していても一定距離に近づくまで走り出さないため、距離を保ち続けることで容易に誘導可能。",
+      "耳は全Slasher中最も悪い（25）が直感（100）がMAXのため隠れていても探し当ててくる。物陰に隠れるよりも相手から距離を取る方が有効。",
+      "通常攻撃や飛び掛かりはモーション発生の瞬間に左右ステップで回避可能（突進は回避不可）。",
+      "攻撃後は一定時間立ち止まるため、曲がり角直前で被弾して角を曲がることで視認を切って逃げやすい。",
+      "ダメージは控えめなため、マヨネーズやオレンジゼリーなど回復アイテムがあると非常に安定する。"
     ],
     "recommendedPerks": [
-      "GROUCH化",
-      "ソリッド・ジョン",
+      "アスリート",
+      "健康",
       "軽い足取り",
-      "沈む流し台"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/97/S_abomignat.png"
+      "第一対応者"
+    ]
   },
   {
     "id": "father_elmer",
@@ -103,9 +107,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "ファーザー・エルマー",
     "class": "CRYPTID",
     "danger": "MODERATE",
-    "attackType": "近接攻撃",
-    "proximityClue": "重々しい足音、祈りの呟き・不穏な衣擦れ音",
+    "attackType": "近接接触 (即死) / ショットガン銃撃 (1〜6ダメージ)",
+    "proximityClue": "喋り声、ずっしりとした重い足音、よく響く重い銃声",
     "iconUrl": "./public/icons/slashers/father_elmer.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/07/S_elmer.png",
     "stats": {
       "intelligence": 20,
       "hearing": 60,
@@ -119,253 +124,30 @@ import React, { useState, useMemo } from 'react';
       "walkSpeed": "1.9 m/s",
       "patientSpeed": "1.0 m/s",
       "sneakSpeed": "0.7 m/s",
-      "chaseSpeed": "4.0 m/s (+0.2 m/s)",
-      "stunDuration": "24.0s (全スラッシャー最長！)",
+      "chaseSpeed": "4.0 m/s (+0.25 m/s)",
+      "stunDuration": "24.0s",
       "angerTarget": "1.0x",
       "angerPassive": "0.05x",
       "angerChase": "0.2x"
     },
     "traits": [
-      "牧師の黒衣を纏った長身のスラッシャー。",
-      "好奇心が80と高く、物音がした場所へ積極的に見回りに来る。",
-      "驚異的な弱点として、あらゆるスタン効果に対して24秒間も完全行動不能になる。"
+      "赤い着ぐるみを着てショットガンで武装した神父。独り言を呟きながら徘徊する。",
+      "ゲーム開始からしばらくは見つかっても積極的には走ってこないが、ANGER 60%以上になると走れるようになる。",
+      "ANGER値に応じてショットガンの取り扱い速度・命中精度と移動速度が向上する。",
+      "こちらの居場所を把握している場合、足音を殺して忍び寄ったり、銃を構えて待ち構えることがある。"
     ],
     "tips": [
-      "スタンアイテム（ポーチライト、石灰、フライパンなど）を1発当てるだけで24秒間も無力化できる。遭遇したら積極的にスタンを狙おう。",
-      "知能が20と低いため、ロッカー隠れや陽動にも弱い。",
-      "チェイス時の速度は4.0m/sとプレイヤーと同速なので、障害物を使って走れば距離を保ちやすい。"
+      "チェイス中は一定距離に入るとショットガンを撃ってくるため遮蔽物を常に意識する。旧本社や農場の窓越しにも撃たれるため射線に注意。",
+      "遠距離武器持ちだが「接触すると即死」であるため、絶対に近寄ってはいけない。",
+      "スタン時以外は主に目標達成（給油）でしかANGERが上昇しないため、むやみにスタンさせないこと。燃料を集めておき一気に給油する戦術が効果的。",
+      "スタンさせると散弾銃を暴発させた後装填し直すが、暴発弾にはダメージ判定があり、棒立ち装填から数秒後に突如復帰するため左右へ避けること。"
     ],
     "recommendedPerks": [
       "メカニック",
-      "アドレナリン・ラッシュ",
-      "知覚過敏"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/e/e7/S_elmer.png"
-  },
-  {
-    "id": "manspider",
-    "name": "Manspider",
-    "japaneseName": "マンスパイダー",
-    "class": "CRYPTID",
-    "danger": "MODERATE",
-    "attackType": "近接毒攻撃",
-    "proximityClue": "無数の節足が擦れ合うカサカサ音、威嚇の噴気音",
-    "iconUrl": "./public/icons/slashers/manspider.png",
-    "stats": {
-      "intelligence": 40,
-      "hearing": 30,
-      "eyesight": 25,
-      "intuition": 50,
-      "fov": 300,
-      "curiosity": 80,
-      "deviousness": 50,
-      "commitment": 25,
-      "patience": 0,
-      "walkSpeed": "2.0 m/s (+1.33 m/s)",
-      "patientSpeed": "n/a",
-      "sneakSpeed": "n/a",
-      "chaseSpeed": "3.95 m/s (+0.25 m/s)",
-      "stunDuration": "4.25s",
-      "angerTarget": "1.0x",
-      "angerPassive": "0.75x",
-      "angerChase": "1.0x"
-    },
-    "traits": [
-      "人の頭部を持つ巨大蜘蛛。視野角が300°と背後まで見渡せる。",
-      "マップ内の通路やドア枠に「蜘蛛の巣（Nest）」を設置し、触れたサバイバーの移動速度を大幅低下させる。",
-      "忍耐力0でせっかち。スタン時間は4.25秒と短い。"
-    ],
-    "tips": [
-      "設置された蜘蛛の巣に絡まるとチェイス時に致命的。移動ルート上の巣の位置を把握しておく。",
-      "背後からの回り込みも300°の広角視野で察知されるため、角や遮蔽物を利用して接近を避ける。",
-      "足音はカサカサと鳴り響くため音での接近察知は容易。"
-    ],
-    "recommendedPerks": [
-      "軽い足取り",
-      "知覚過敏",
-      "健康II"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/4/4b/Manspider_icon.png"
-  },
-  {
-    "id": "borgmire",
-    "name": "Borgmire",
-    "japaneseName": "ボーグマイア",
-    "class": "CRYPTID",
-    "danger": "CONSIDERABLE",
-    "attackType": "近接粉砕攻撃",
-    "proximityClue": "ズシズシと地響きを立てる超重量足音",
-    "iconUrl": "./public/icons/slashers/borgmire.png",
-    "stats": {
-      "intelligence": 20,
-      "hearing": 60,
-      "eyesight": 45,
-      "intuition": 20,
-      "fov": 65,
-      "curiosity": 50,
-      "deviousness": 20,
-      "commitment": 30,
-      "patience": 90,
-      "walkSpeed": "1.25 m/s",
-      "patientSpeed": "0.5 m/s",
-      "sneakSpeed": "0.7 m/s",
-      "chaseSpeed": "4.5 m/s (+0.2 m/s)",
-      "stunDuration": "4.0s",
-      "angerTarget": "2.0x",
-      "angerPassive": "0.8x",
-      "angerChase": "-3.5x (特殊仕様)"
-    },
-    "traits": [
-      "巨躯を誇る重量級スラッシャー。直線チェイス速度が4.5 m/sとプレイヤー（4.0 m/s）より大幅に速い！",
-      "視野角が65°と全スラッシャー中最も狭い（トンネル視野）。",
-      "【特殊仕様】プレイヤーを追跡（チェイス）している間、怒り（ANGER）が-3.5倍の勢いで激減していく。"
-    ],
-    "tips": [
-      "視野角がわずか65°しかないため、至近距離でも横や斜め後ろに回り込むだけで簡単に視界から消えることができる。",
-      "直線通路で逃げると追いつかれるため、入り組んだ部屋や曲がり角をジグザグに逃げて視線を切り続けよう。",
-      "知能（20）が低いため、角を曲がった直後のロッカー隠れも非常に刺さる。"
-    ],
-    "recommendedPerks": [
-      "軽い足取りII",
-      "ソリッド・ジョン",
-      "GROUCH化"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/09/Borgmire.png"
-  },
-  {
-    "id": "dolphinman",
-    "name": "Dolphinman",
-    "japaneseName": "ドルフィンマン",
-    "class": "CRYPTID",
-    "danger": "CONSIDERABLE",
-    "attackType": "近接突進攻撃",
-    "proximityClue": "イルカ特有の甲高いクリック音・エコー音",
-    "iconUrl": "./public/icons/slashers/dolphinman.png",
-    "stats": {
-      "intelligence": 90,
-      "hearing": 90,
-      "eyesight": 5,
-      "intuition": 5,
-      "fov": 120,
-      "curiosity": 50,
-      "deviousness": 40,
-      "commitment": 80,
-      "patience": 100,
-      "walkSpeed": "1.4 m/s",
-      "patientSpeed": "0.4 m/s",
-      "sneakSpeed": "0.8 m/s",
-      "chaseSpeed": "4.0 m/s (+0.4 m/s)",
-      "stunDuration": "10.2s",
-      "angerTarget": "1.25x",
-      "angerPassive": "1.25x",
-      "angerChase": "1.5x"
-    },
-    "traits": [
-      "視力がほぼゼロ（5）だが、聴力（90）と知能（90）が最高峰の盲目ハンター。",
-      "マップ内の微細な音（足音、給油音、アイテム落下音）をエコーロケーションで感知する。",
-      "知能90のため、同じ場所で投げたガラス瓶やロッカーの誤魔化しは即座に見破られる。"
-    ],
-    "tips": [
-      "「走らない・音を立てない」が絶対原則。しゃがみ歩きであれば、目の前を通り過ぎても気づかれない。",
-      "『軽い足取り』パーク（足音軽減）が最大のメタ。音を遮断すれば完全に無力化できる。",
-      "ガソリン缶を壁にぶつけたり、走って飛び込む行為は厳禁。"
-    ],
-    "recommendedPerks": [
-      "軽い足取り",
-      "軽い足取りII",
-      "メカニックIII"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/d/df/S_dolphinman.png"
-  },
-  {
-    "id": "speedrunner",
-    "name": "Speedrunner",
-    "japaneseName": "スピードランナー",
-    "class": "CRYPTID",
-    "danger": "DEVASTATING",
-    "attackType": "超高速即死体当たり",
-    "proximityClue": "早送り動画のようなけたたましい足音と電子音",
-    "iconUrl": "./public/icons/slashers/speedrunner.png",
-    "stats": {
-      "intelligence": 70,
-      "hearing": 75,
-      "eyesight": 30,
-      "intuition": 20,
-      "fov": 120,
-      "curiosity": 25,
-      "deviousness": 0,
-      "commitment": 0,
-      "patience": 0,
-      "walkSpeed": "n/a",
-      "patientSpeed": "n/a",
-      "sneakSpeed": "n/a",
-      "chaseSpeed": "0.6 m/s (+6.4 m/s → 最大7.0 m/s！)",
-      "stunDuration": "10.0s",
-      "angerTarget": "0x",
-      "angerPassive": "6.5x (驚異的自動怒り蓄積)",
-      "angerChase": "0x"
-    },
-    "traits": [
-      "時間経過による怒り増加が「6.5x」とゲーム内最速。放っておくと急速に怒りMAXへ到達する。",
-      "チェイス時の加速が凶悪で、怒りに応じて最大7.0 m/s（プレイヤーの1.75倍！）という音速突進を仕掛けてくる。",
-      "通常歩行を行わず、静止と突進を繰り返す特殊挙動。"
-    ],
-    "tips": [
-      "【時間との勝負】長期戦は死を意味する。給油タスクを最優先で電光石火で終わらせる。",
-      "チェイスされたら直線で逃げても1秒で追いつかれる。部屋の出入り口、柱、障害物をぐるぐる回る「グルチェ」で時間を稼ごう。",
-      "スタン時間10秒を最大限活かすため、スタンアイテムを複数人で用意しておくと延命できる。"
-    ],
-    "recommendedPerks": [
-      "メカニック",
-      "メカニックII",
-      "アドレナリン・ラッシュ",
-      "窮地"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/1/10/Speedrunner.png"
-  },
-  {
-    "id": "featherface",
-    "name": "Featherface",
-    "japaneseName": "フェザーフェイス",
-    "class": "CRYPTID",
-    "danger": "DEVASTATING",
-    "attackType": "近接即死切り裂き",
-    "proximityClue": "鳥の羽ばたき音、甲高い啼き声",
-    "iconUrl": "./public/icons/slashers/featherface.png",
-    "stats": {
-      "intelligence": 40,
-      "hearing": 60,
-      "eyesight": 30,
-      "intuition": 10,
-      "fov": 80,
-      "curiosity": 75,
-      "deviousness": 30,
-      "commitment": 80,
-      "patience": 70,
-      "walkSpeed": "2.0 m/s",
-      "patientSpeed": "0.55 m/s",
-      "sneakSpeed": "0.8 m/s",
-      "chaseSpeed": "4.0 m/s (+0.25 m/s)",
-      "stunDuration": "13.25s",
-      "angerTarget": "1.25x",
-      "angerPassive": "0.5x",
-      "angerChase": "1.0x"
-    },
-    "traits": [
-      "鳥の羽毛に覆われた頭部を持つDEVASTATINGスラッシャー。",
-      "「調査への取り組み」が80と極めて高く、一度音を聞いた場所を長時間徹底的に調べ尽くす執念深さを持つ。",
-      "視野角は80°と狭めだが、スタン耐性は標準的（13.25秒）。"
-    ],
-    "tips": [
-      "調査への取り組み（80）の高さを逆手に取り、遠くへ石や瓶を投げて大きな音を立てると、長時間そのエリアから動かなくなる。",
-      "自分が音を立ててしまった場合は即座にその場から離脱し、別のエリアへ退避すること。"
-    ],
-    "recommendedPerks": [
-      "沈む流し台",
-      "軽い足取り",
-      "知覚過敏"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/f/f7/Featherface_icon.png"
+      "健康II",
+      "リード・ベリー",
+      "第一対応者"
+    ]
   },
   {
     "id": "the_grouch",
@@ -373,9 +155,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "ザ・グラウチ",
     "class": "DEMON",
     "danger": "MODERATE",
-    "attackType": "急襲即死噛みつき",
-    "proximityClue": "ゴミ箱を漁る金属摩擦音、不平不満の呟き",
+    "attackType": "近接攻撃 (通常攻撃) / 癇癪時の高速猛攻",
+    "proximityClue": "独り言、不規則で連続的なずっしりとした足音",
     "iconUrl": "./public/icons/slashers/the_grouch.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/75/S_grouch.png",
     "stats": {
       "intelligence": 0,
       "hearing": 50,
@@ -390,27 +173,125 @@ import React, { useState, useMemo } from 'react';
       "patientSpeed": "0.5 m/s",
       "sneakSpeed": "0.7 m/s",
       "chaseSpeed": "5.0 m/s (+0.25 m/s)",
-      "stunDuration": "3s + 8s at 3m/s / 60〜120s (ベナドリル特効！)",
-      "angerTarget": "1.25x",
+      "stunDuration": "3s+8s反撃+10s",
+      "angerTarget": "0.75x",
       "angerPassive": "1.75x",
       "angerChase": "0.25x"
     },
     "traits": [
-      "ゴミ箱やロッカーに潜伏する悪魔系スラッシャー。",
-      "普段の歩行は0.7 m/sと鈍重だが、チェイス突入時は5.0 m/sの超猛スピードで突進してくる。",
-      "知能が0なのでロッカーの看破などは一切できない。"
+      "癇癪状態でない時はプレイヤーを追ってアイテムを懇願してくる。ANGER 100未満の時は癇癪を起こさない限り攻撃してこない。",
+      "スタンさせると3秒後に8秒間3.0 m/sで追跡しながら反撃し、その後10秒間スタンする。",
+      "度々ロッカーに身を潜める。接近したり近くで物音を立てると癇癪を起こしてチェイスが始まる。扉が完全に閉まり毛がはみ出ているのが目印。",
+      "選出時、マップ内にニューポート・メンソールが3個以上確定スポーンする。"
     ],
     "tips": [
-      "【特効薬：ベナドリル】ベナドリルを投与すると、なんと60秒〜120秒（1〜2分間）も爆睡して完全無力化する。",
-      "チェイス速度が5.0m/sと速いため、遭遇したらすぐに角を曲がってロッカーに入るか、ベナドリルを使用する。",
-      "ロッカーを開ける瞬間に潜んでいる場合があるため、近づく際は音を聞き分ける。"
+      "ニューポート・メンソールを渡すとデメリットなしで40〜60秒間鎮静化（ANGER -18〜25）できるため、出会い次第渡そう（地面に置くだけでOK）。",
+      "ガラス瓶を渡すとからかわれたと腹を立て、その場で瓶を叩き割って癇癪を起こし攻撃力が永続上昇する。マップ上の瓶も勝手に拾って暴れるため「食べる・隠す・割る」で事故を防ぐ。",
+      "ビール樽を渡すと開けようとして破裂し、20〜30秒間咽び泣いて気絶する。ベナドリルや麻薬袋なら1〜2分間完全停止。",
+      "ガソリンを渡すと100%癇癪（60秒）を起こすため、ガソリンを持ったまま近づかないこと。",
+      "長時間経過や脱出フェーズでは5.0 m/s以上の超高速で襲ってくるため、速やかな任務完了が鍵。"
     ],
     "recommendedPerks": [
-      "GROUCH化",
-      "ソリッド・ジョン",
-      "軽い足取りII"
+      "スピード狂",
+      "軽い足取り",
+      "メカニック",
+      "沈む流し台"
+    ]
+  },
+  {
+    "id": "manspider",
+    "name": "Manspider",
+    "japaneseName": "マンスパイダー",
+    "class": "CRYPTID",
+    "danger": "MODERATE",
+    "attackType": "近接攻撃 / 毒継続ダメージ (3回蓄積) / 超高速飛び付き",
+    "proximityClue": "蜘蛛のような軽い連続したピタピタ足音、不気味な鳴き声",
+    "iconUrl": "./public/icons/slashers/manspider.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/75/Manspider_icon.png",
+    "stats": {
+      "intelligence": 40,
+      "hearing": 30,
+      "eyesight": 20,
+      "intuition": 50,
+      "fov": 300,
+      "curiosity": 80,
+      "deviousness": 50,
+      "commitment": 25,
+      "patience": 0,
+      "walkSpeed": "2.0 m/s (+1.33 m/s)",
+      "patientSpeed": "2.0 m/s",
+      "sneakSpeed": "2.0 m/s",
+      "chaseSpeed": "3.95 m/s (+0.25 m/s)",
+      "stunDuration": "4.25s",
+      "angerTarget": "1.0x",
+      "angerPassive": "0.75x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "マップ内に「ネスト（蜘蛛の巣）」が1箇所設置される。開始時に燃料やバッテリーが巣の周辺に配置され、Manspider自身もマップ上の燃料・バッテリー・死体をネストへ持ち運ぶ。",
+      "ネストの5m以内に近づくと移動速度が最大-2m/s低下。4m以内でManspiderが即座に巣へ急行（滞在時間に応じてManspiderが最大+3m/s加速）。",
+      "ネスト2.5m以内、または本体攻撃を受けると毒状態になり、約80秒間で合計3回の継続ダメージを受ける（デフォルトHP10なら2発食らうと毒死確定）。毒は回復効果で除去可能。",
+      "【ANGER 50%以上】直線10.0 m/s（最大15.0 m/s）という全スラッシャー最速の超高速飛び付き攻撃を解禁。"
     ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/a/a1/S_grouch.png"
+    "tips": [
+      "運搬中のガソリンやバッテリーを奪い返す際はネストに置かれた直後を狙う。運搬中に奪おうと手放すとワープする。",
+      "ガソリンやバッテリーを通路に放置したり持ったまま移動するとサーチされて発見されやすいため、見つけたら即座に注油するか安全な場所に隠す。",
+      "スタン時間が4.25秒と極めて短いため、スタンでの逃走は困難。角を利用してチェイスを切ること。",
+      "毒はマヨネーズやオレンジゼリーなどの回復アイテムで即座に解除できるため、解毒手段を常備する。"
+    ],
+    "recommendedPerks": [
+      "健康II",
+      "リード・ベリー",
+      "アスリート",
+      "メカニック"
+    ]
+  },
+  {
+    "id": "the_entity",
+    "name": "The Entity",
+    "japaneseName": "ジ・エンティティ",
+    "class": "UMBRA",
+    "danger": "MODERATE",
+    "attackType": "近接接触 (即死) / 悲痛な叫び (広域暗転＆減速デバフ)",
+    "proximityClue": "ガシャンガシャンと響く重い金属の足音",
+    "iconUrl": "./public/icons/slashers/the_entity.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7e/S_entity.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 65,
+      "eyesight": 45,
+      "intuition": 80,
+      "fov": 360,
+      "curiosity": 25,
+      "deviousness": 80,
+      "commitment": 80,
+      "patience": 100,
+      "walkSpeed": "1.5 m/s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "1.5 m/s",
+      "chaseSpeed": "3.8 m/s (+0.2 m/s)",
+      "stunDuration": "14.0s",
+      "angerTarget": "1.0x",
+      "angerPassive": "1.25x",
+      "angerChase": "1.5x"
+    },
+    "traits": [
+      "視野角が全方位360°！背後を向いていても感知されるが、「チェイス時以外は自分を視界に捉えているプレイヤーしか視認できない（だるまさんがころんだ逆版）」。",
+      "チェイス状態に入ると大声を発して「完全透明化」し、大まかな位置から不気味な笑い声のみが聞こえる。",
+      "スタン時・ANGER 75%超過時・チェイス60秒継続時、マップ全域に叫び声を上げ、30m（最大55m）以内のプレイヤーに12〜22秒間「視界不良（暗転）＆移動速度-2.0 m/s」の重度デバフを付与。"
+    ],
+    "tips": [
+      "足音が非常に大きいため、足音の方向を向かない（背を向けて作業・移動する）ことで視認を回避できる。給油中も背を向けるのが鉄則。",
+      "ただし音の調査に向かう際は足音が極端に小さくなるため、背を向けているからと油断して激突即死しないよう注意。",
+      "チェイス中は透明化するが当たり判定はあるため、笑い声の方向を予測してスタンアイテムを当てることは可能。",
+      "脱出フェーズではヘリの音を聞いて駆けつけ、透明化のままヘリ周辺で待ち構えることが多い。足音をよく聞き、タイミングをずらして脱出する。"
+    ],
+    "recommendedPerks": [
+      "スピード狂",
+      "影産まれ",
+      "メカニック",
+      "軽い足取り"
+    ]
   },
   {
     "id": "sid",
@@ -418,9 +299,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "シド",
     "class": "DEMON",
     "danger": "CONSIDERABLE",
-    "attackType": "近接凶器攻撃",
-    "proximityClue": "荒い息遣い、刃物を引きずる金属音",
+    "attackType": "近接接触 (即死) / アサルトライフル乱射 (4ダメージ/発)",
+    "proximityClue": "喋り声、ずっしりとした重い足音、残響が短く軽い銃声",
     "iconUrl": "./public/icons/slashers/sid.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7b/S_sid.png",
     "stats": {
       "intelligence": 30,
       "hearing": 60,
@@ -432,28 +314,31 @@ import React, { useState, useMemo } from 'react';
       "commitment": 40,
       "patience": 25,
       "walkSpeed": "1.8 m/s",
-      "patientSpeed": "0.8 m/s",
-      "sneakSpeed": "1.0 m/s",
-      "chaseSpeed": "3.9 m/s (+0.18 m/s)",
-      "stunDuration": "ポケット・フェンタニルで特殊中断",
+      "patientSpeed": "1.0 m/s",
+      "sneakSpeed": "0.8 m/s",
+      "chaseSpeed": "3.9 m/s (+0.225 m/s)",
+      "stunDuration": "10.0s",
       "angerTarget": "1.5x",
       "angerPassive": "0.25x",
-      "angerChase": "0.5x"
+      "angerChase": "0.9x"
     },
     "traits": [
-      "薬物依存の狂気にとらわれたDemonスラッシャー。",
-      "プレイヤーを執拗に追い詰めるが、特定の薬物アイテムに異常な執着を示す。"
+      "通称クッキーモンスター。銃を装備していない状態のみ、クッキーを渡すことで一定時間無力化＆ANGER減少。",
+      "ANGER 60〜80%になると一定確率でライフルを装備し、遠距離射撃を開始（ANGERに応じて威力・命中精度上昇）。",
+      "半径30m以内でクッキーを食べられると激怒し、そのプレイヤーが死亡するまで執拗にメインターゲットとして追跡する（無力化も強制解除）。"
     ],
     "tips": [
-      "アイテム「ポケット・フェンタニル」を投げ与えることで、追跡を中断させて無害化できる。",
-      "チェイス速度は3.9 m/sとプレイヤーよりわずかに遅いため、スタミナを切らさず走り続ければ追いつかれない。"
+      "マップ上にクッキーが約4個スポーンするため、Sidと判明したら食べずに床に置いて渡す。",
+      "銃声が一度でも鳴ったら銃装備完了の合図。以降はクッキーを食べなくなるため無理に近づかないこと。",
+      "銃を構えている時にスタンさせると前方に銃を乱射するため、スタン時は射線を外すこと。",
+      "銃を取り出さない場合はクッキーを食べない銃無しSidとなり、高速移動での接触即死を狙ってくるため後半の接近は厳禁。"
     ],
     "recommendedPerks": [
-      "アドレナリン・ラッシュ",
-      "商人",
-      "健康"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/9a/S_sid.png"
+      "コストコの冷凍ピザ",
+      "健康II",
+      "リード・ベリー",
+      "メカニック"
+    ]
   },
   {
     "id": "thirsty",
@@ -461,53 +346,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "サースティ",
     "class": "DEMON",
     "danger": "CONSIDERABLE",
-    "attackType": "捕獲脱水攻撃",
-    "proximityClue": "喉を鳴らすゴクゴク音、水滴の垂れる音",
+    "attackType": "近接接触 (即死)",
+    "proximityClue": "フスフスといった間隔の短い呼吸音、カサカサとした足音",
     "iconUrl": "./public/icons/slashers/thirsty.png",
-    "stats": {
-      "intelligence": 70,
-      "hearing": 65,
-      "eyesight": 50,
-      "intuition": 100,
-      "fov": 90,
-      "curiosity": 75,
-      "deviousness": 30,
-      "commitment": 80,
-      "patience": 80,
-      "walkSpeed": "1.0 m/s",
-      "patientSpeed": "0.3 m/s",
-      "sneakSpeed": "0.4 m/s",
-      "chaseSpeed": "4.0 m/s (+0.75 m/s)",
-      "stunDuration": "16.0s (長めのスタン)",
-      "angerTarget": "0.35x",
-      "angerPassive": "2.25x",
-      "angerChase": "1.25x"
-    },
-    "traits": [
-      "絶え間ない渇きに苦しむDemon。液体や飲料に強く引き寄せられる。",
-      "直感（100）が高く、チェイス後半には+0.75 m/sと大幅に加速する。",
-      "スタン時間が16秒と非常に長い。"
-    ],
-    "tips": [
-      "「牛乳 (Milk)」や「ソーダ」などの飲料アイテムを地面に置くことで、興味を惹きつけて足止め可能。",
-      "スタン時間が16秒と長いため、フライパンやポーチライトでスタンさせてからタスクを進行させると安全。"
-    ],
-    "recommendedPerks": [
-      "大食いチャンピオン",
-      "沈む流し台",
-      "知覚過敏"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/b/b2/S_thirsty.png"
-  },
-  {
-    "id": "princess",
-    "name": "Princess",
-    "japaneseName": "プリンセス",
-    "class": "DEMON",
-    "danger": "CONSIDERABLE",
-    "attackType": "背後急襲即死",
-    "proximityClue": "かすかな鈴の音、爪が床を擦るカチカチ音",
-    "iconUrl": "./public/icons/slashers/princess.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/2/2f/S_thirsty.png",
     "stats": {
       "intelligence": 80,
       "hearing": 75,
@@ -519,121 +361,31 @@ import React, { useState, useMemo } from 'react';
       "commitment": 20,
       "patience": 70,
       "walkSpeed": "1.5 m/s",
-      "patientSpeed": "0.55 m/s",
-      "sneakSpeed": "1.0 m/s",
-      "chaseSpeed": "4.0 m/s (+0.2 m/s)",
-      "stunDuration": "10.0s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "0.5 m/s",
+      "chaseSpeed": "4.0 m/s (+0.25 m/s)",
+      "stunDuration": "16.0s",
       "angerTarget": "1.0x",
       "angerPassive": "0.5x",
       "angerChase": "1.0x"
     },
     "traits": [
-      "「巧妙さ 100」という完全無音ステルス能力を持つDemon犬。",
-      "足音を完全に消してプレイヤーの死角（背後）へと忍び寄り、気づかないうちに即死奇襲を仕掛けてくる。",
-      "知能も80と高いため、ロッカー隠れも見抜かれやすい。"
+      "ANGER 70%未満では攻撃してこないが、プレイヤーを発見すると追わずにその場で見つめ、チェイス状態となりANGERが急上昇する。",
+      "牛乳瓶を渡すと無力化可能（ANGER 0〜49時は40〜70秒、50〜99時は23〜53秒）。",
+      "ANGER 100%に達すると牛乳を一切飲まなくなり、殺人モードへ移行。",
+      "至近距離でプレイヤーが牛乳を飲むと、ANGERに関わらず即座にチェイス状態へ突入する。"
     ],
     "tips": [
-      "音が全くしないため、定期的に360度周囲を見回す警戒が必要。",
-      "犬用おやつ（Dog Treat）を携帯しておくことで、接近されても懐かせてピンチを脱出できる。",
-      "『知覚過敏』パークで足音増幅を狙うか、背後を壁にして給油作業を行うのが有効。"
-    ],
-    "recommendedPerks": [
-      "知覚過敏",
-      "影産まれ",
-      "窮地"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/f/f2/Princess.png"
-  },
-  {
-    "id": "igor",
-    "name": "IGOR",
-    "japaneseName": "イゴール",
-    "class": "DEMON",
-    "danger": "DEVASTATING",
-    "attackType": "時速6m/sの壊滅的虐殺",
-    "proximityClue": "重厚な警報サイレン、エンジン爆音",
-    "iconUrl": "./public/icons/slashers/igor.png",
-    "stats": {
-      "intelligence": 100,
-      "hearing": 200,
-      "eyesight": 300,
-      "intuition": 100,
-      "fov": 160,
-      "curiosity": 100,
-      "deviousness": 0,
-      "commitment": 0,
-      "patience": 0,
-      "walkSpeed": "n/a",
-      "patientSpeed": "n/a",
-      "sneakSpeed": "n/a",
-      "chaseSpeed": "6.0 m/s (超高速！)",
-      "stunDuration": "2.2s / 20〜30s (ビール樽 Beer 特効！)",
-      "angerTarget": "0x",
-      "angerPassive": "0x",
-      "angerChase": "0x"
-    },
-    "traits": [
-      "Creator（創造者）モードとDestroyer（破壊者）モードを切り替える最凶の機動兵器Demon。",
-      "マップ上の初期ガソリン缶が極端に少なくなり、CreatorモードのIGORに接近して燃料を受け取る必要がある。",
-      "Destroyerモードに移行すると、時速6.0 m/s（プレイヤーの1.5倍）という圧倒的速さでサバイバーを虐殺し始める。"
-    ],
-    "tips": [
-      "【特効アイテム：ビール樽 (Beer)】ビール樽をぶつけると泥酔し、20〜30秒間も大スタンさせることができる。",
-      "Destroyerモード中は全員で固まらず分散行動する。ターゲットされたプレイヤーは味方から離れて時間を稼ぐ。",
-      "Creatorモードの間に全員で急いで燃料を回収・給油しきることが生還の鍵。"
-    ],
-    "recommendedPerks": [
-      "メカニック",
-      "メカニックIII",
-      "スケープゴート",
-      "窮地"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/b/bb/S_tyler.png"
-  },
-  {
-    "id": "the_entity",
-    "name": "The Entity",
-    "japaneseName": "ジ・エンティティ",
-    "class": "UMBRA",
-    "danger": "MODERATE",
-    "attackType": "接触即死",
-    "proximityClue": "重い金属質な巨大足音（調査時は無音化）",
-    "iconUrl": "./public/icons/slashers/the_entity.png",
-    "stats": {
-      "intelligence": 20,
-      "hearing": 65,
-      "eyesight": 40,
-      "intuition": 80,
-      "fov": 360,
-      "curiosity": 25,
-      "deviousness": 80,
-      "commitment": 80,
-      "patience": 100,
-      "walkSpeed": "1.5 m/s",
-      "patientSpeed": "0.6 m/s",
-      "sneakSpeed": "2.0 m/s",
-      "chaseSpeed": "3.8 m/s (+0.2 m/s)",
-      "stunDuration": "n/a (通常スタン無効)",
-      "angerTarget": "1.0x",
-      "angerPassive": "1.25x",
-      "angerChase": "1.5x"
-    },
-    "traits": [
-      "全方位360°の視野を持つ影の超常体。通常スタンが一切効かない。",
-      "【逆・だるまさんがころんだ】プレイヤー側が画面内にEntityを捉えている時しか追跡・視認判定が発生しない。",
-      "チェイス開始時に絶叫とともに透明化し、大まかな方角から聞こえる笑い声だけで位置を察知しなければならない。"
-    ],
-    "tips": [
-      "【絶対ルール：見ないこと】プレイヤーがEntityを見なければ認識されない。給油タスク中などは「あえて背中を向けて作業する」のが定石テクニック。",
-      "ただし背中を向けていても直接体がぶつかると即死するため、大きな金属足音の方向を常に耳で追うこと。",
-      "大きな物音の調査に向かう際は足音が極端に小さくなるため、音が消えたら近くに忍び寄っていると警戒しよう。"
+      "低姿勢で足音も小さいため、曲がり角での鉢合わせ即死事故が多発する。知覚過敏パークで足音を聞き分けるか、角のクリアリングを徹底する。",
+      "床に落ちている牛乳を勝手に飲んでしまうため、見つけた牛乳は棚の上など届かない高所に保管しておく。",
+      "スタン時間が16秒と非常に長く反撃もないため、スタンアイテムによる足止めが極めて有効（ただし追跡中はポーチライト無効）。"
     ],
     "recommendedPerks": [
       "知覚過敏",
       "軽い足取り",
-      "沈む流し台"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/c/c6/S_entity.png"
+      "アスリート",
+      "第一対応者"
+    ]
   },
   {
     "id": "the_beast",
@@ -641,9 +393,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "ザ・ビースト",
     "class": "UMBRA",
     "danger": "CONSIDERABLE",
-    "attackType": "引き裂き即死攻撃",
-    "proximityClue": "草を擦るカサカサ音、甲高く短い不気味な笑い声、ライトの激しいノイズ",
+    "attackType": "近接攻撃 (4〜6ダメージ) / 金切り声 (減速＆ライト無効)",
+    "proximityClue": "カサカサと草を踏むような足音、高い不気味な短い叫び声、接近時のライトノイズ",
     "iconUrl": "./public/icons/slashers/the_beast.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/a/a2/S_beast.png",
     "stats": {
       "intelligence": 20,
       "hearing": 70,
@@ -655,31 +408,175 @@ import React, { useState, useMemo } from 'react';
       "commitment": 10,
       "patience": 70,
       "walkSpeed": "1.25 m/s",
-      "patientSpeed": "0.75 m/s",
-      "sneakSpeed": "0.85 m/s",
-      "chaseSpeed": "4.5 m/s (+0.3 m/s)",
-      "stunDuration": "14.0s (スタン有効)",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "4.5 m/s (+0.375 m/s)",
+      "stunDuration": "18.0s",
       "angerTarget": "1.0x",
       "angerPassive": "0.5x",
       "angerChase": "1.25x"
     },
     "traits": [
-      "開幕からチェイス速度が4.5 m/sとプレイヤーより高速な野獣型Umbra。",
-      "近くにいるとライトの光が激しくノイズ点滅する。",
-      "【ANGER 80%未満】懐中電灯の光を当て続けると怯んで物陰に退散する。",
-      "【ANGER 40%以上】チェイス中にサバイバーが離れると金切り声を上げ、周囲のプレイヤー全員の移動速度低下＆ライト使用不能を引き起こす。"
+      "ライトを当てるかチェイス状態になると、プレイヤーのライト光量が急速に低下（30秒で回復）。",
+      "ANGER 80%未満の場合、ライトの光を当て続けると怯えて物陰に逃げ出す。",
+      "ANGER 40%以上かつチェイス相手が離れると金切り声を上げ、範囲内のプレイヤーを移動速度低下＆ライト使用不可にし、自身の移動速度を急上昇させる。",
+      "ANGER 60%以上で聴力85、視力55へ大幅強化。"
     ],
     "tips": [
-      "序盤（怒り80%未満）はライトを顔面に照射して追い払うのが鉄則。",
-      "ライトに発生するノイズで壁越しの位置を把握できる。",
-      "スタン耐性が低く14秒も気絶するため、各種スタンアイテムを惜しまず使おう。"
+      "視力が非常に高いため遠距離から察知されやすい。目が光っているためプレイヤー側からも目視しやすいのが救い。",
+      "序盤（ANGER 80%未満）は遭遇してもライトを素早く照射し続けることで安全に追い払える。金切り声を出される前にライトを当てよう。",
+      "スタン時間が18秒と長く反撃もないため、アイテムによるスタンが極めて効果的。",
+      "後半はライトが効かなくなり、金切り声でライトを消されて暗闇から超高速で襲われるため、視界に入らない立ち回りが必須。"
     ],
     "recommendedPerks": [
-      "影産まれ",
+      "エクスタミネーター用の懐中電灯",
+      "スピード狂",
       "健康II",
-      "知覚過敏"
+      "影産まれ"
+    ]
+  },
+  {
+    "id": "dolphinman",
+    "name": "Dolphinman",
+    "japaneseName": "ドルフィンマン",
+    "class": "CRYPTID",
+    "danger": "CONSIDERABLE",
+    "attackType": "近接接触 (即死)",
+    "proximityClue": "ペチペチとした湿った足音、鳴き声、カカカッというクラッタリング音",
+    "iconUrl": "./public/icons/slashers/dolphinman.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7b/S_dolphinman.png",
+    "stats": {
+      "intelligence": 90,
+      "hearing": 90,
+      "eyesight": 2,
+      "intuition": 5,
+      "fov": 120,
+      "curiosity": 50,
+      "deviousness": 40,
+      "commitment": 80,
+      "patience": 100,
+      "walkSpeed": "1.4 m/s",
+      "patientSpeed": "0.7 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "4.0 m/s (+0.5 m/s)",
+      "stunDuration": "10.2s",
+      "angerTarget": "1.25x",
+      "angerPassive": "1.25x",
+      "angerChase": "1.5x"
+    },
+    "traits": [
+      "視力がほぼ皆無（2）だが、音に対して全スラッシャー中最も敏感。",
+      "一定時間音が聞こえないとその場に座り込み、聴力が通常の1.4倍（126相当）に跳ね上がる。",
+      "一定範囲内で大きな音（壁衝突音、不用意なダッシュ等）を聞くと大音量で鳴き叫び、「ハントモード」へ移行して音の発生地点へ急行する。ハントモード中は視力が大幅に向上。"
     ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/93/S_beast.png"
+    "tips": [
+      "鳴き声が聞こえたら誰かが音を立ててハントモードに入った合図。不用意に動かず静かに身を潜める。",
+      "ガソリンやバッテリーを発電機に当てる音でも反応するため、挿入時は慎重に近づける。燃料を部屋の外に放り投げる癖は絶対に控えること。",
+      "音に対する誘導耐性がゼロのため、遠くに瓶を投げて安全に誘導することが容易（ただし味方の位置に注意）。",
+      "チェイス中に視界から外れた状態で茂みに入るとチェイスを撒ける。"
+    ],
+    "recommendedPerks": [
+      "軽い足取り",
+      "沈む流し台",
+      "影産まれ",
+      "第一対応者"
+    ]
+  },
+  {
+    "id": "princess",
+    "name": "Princess",
+    "japaneseName": "プリンセス",
+    "class": "DEMON",
+    "danger": "CONSIDERABLE",
+    "attackType": "噛みつき拘束 (1, 2, 3...と加算継続ダメージ)",
+    "proximityClue": "低い唸り声、犬のようなペタペタとした足音",
+    "iconUrl": "./public/icons/slashers/princess.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/e/e0/Princess.png",
+    "stats": {
+      "intelligence": 70,
+      "hearing": 65,
+      "eyesight": 50,
+      "intuition": 100,
+      "fov": 90,
+      "curiosity": 75,
+      "deviousness": 30,
+      "commitment": 80,
+      "patience": 80,
+      "walkSpeed": "1.0 m/s",
+      "patientSpeed": "0.7 m/s",
+      "sneakSpeed": "0.5 m/s",
+      "chaseSpeed": "4.0 m/s (+0.75 m/s)",
+      "stunDuration": "2.2s / 20-30s",
+      "angerTarget": "0.35x",
+      "angerPassive": "2.25x",
+      "angerChase": "1.25x"
+    },
+    "traits": [
+      "時間経過によるANGER上昇が非常に早い（常時2.25倍）。",
+      "未使用の「呪われた人形」を渡すとANGERが減少し、数秒間無力化。",
+      "攻撃がヒットするとプレイヤーに噛みつき、引きずりながら1→2→3...とダメージが増加する加算継続ダメージを与える。",
+      "噛みつきからの脱出：PCはジャンプ連打、VRは体・頭・手を激しく振り回すことで脱出＆スタン可能（ANGERが高いほど脱出困難）。",
+      "通常のスタン時間は2.2秒と極短だが、ビール樽を使用すると20〜30秒間超長時間スタンする。追跡中にビール樽を投げると樽を優先追跡。"
+    ],
+    "tips": [
+      "マップ上に呪われた人形が2個以上確定スポーンするため、自分で使わずにPrincessへ渡すこと。",
+      "ビール樽を投げれば20〜30秒間完全無力化できるため、対Princessの最強対策アイテムとなる。砂やPx-EMCは2.2秒しか効かないため過信禁物。",
+      "懐中電灯の光に強く反応するため、遭遇時はライトを消すこと。ニューポート・メンソール等で暗視を確保すると有利。",
+      "噛みつかれたら全力で暴れて即座に脱出すること（VRなら1秒足らずで脱出可能）。"
+    ],
+    "recommendedPerks": [
+      "健康II",
+      "リード・ベリー",
+      "アスリート",
+      "第一対応者"
+    ]
+  },
+  {
+    "id": "borgmire",
+    "name": "Borgmire",
+    "japaneseName": "ボーグマイア",
+    "class": "CRYPTID",
+    "danger": "CONSIDERABLE",
+    "attackType": "パンチ (4ダメージ) / 回避不能キック / 高速突撃",
+    "proximityClue": "ガシャンガシャン響く機械音、心臓の鼓動音、赤い発光",
+    "iconUrl": "./public/icons/slashers/borgmire.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/2/23/Borgmire.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 60,
+      "eyesight": 45,
+      "intuition": 20,
+      "fov": 65,
+      "curiosity": 50,
+      "deviousness": 20,
+      "commitment": 30,
+      "patience": 90,
+      "walkSpeed": "1.25 m/s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "4.5 m/s (+0.75 m/s)",
+      "stunDuration": "4.0s",
+      "angerTarget": "2.0x",
+      "angerPassive": "0.8x",
+      "angerChase": "-3.5x"
+    },
+    "traits": [
+      "目標達成（給油）によるANGER上昇が全スラッシャー中最高（2.0倍）だが、チェイスを行うとANGERが激減する（-3.5倍）という特異体質！",
+      "ANGERが0になるとその場で数秒間完全に行動停止する。",
+      "ANGER 50%以上で「突撃」解禁。プレイヤーを発見すると、その時プレイヤーがいた座標に向かって直線高速疾走する。",
+      "パンチは左側に攻撃判定が出ないため、敵の左脇に回り込むことで回避可能（キックは回避不可＋ノックバック）。キルモーションが存在しない。"
+    ],
+    "tips": [
+      "開幕から定期的にチェイスを仕掛けてANGERを0付近にコントロールすれば、頻繁に行動停止させて安全に作業できる。",
+      "突撃は「走り出した瞬間にプレイヤーがいた場所」まで一直線に走るため、死角や横へステップすれば簡単にやり過ごせる。",
+      "目が良く視認距離が長いため、開けた場所での横断は避ける。オレンジゼリーを所持していると被ダメ軽減とANGER抑制に役立つ。"
+    ],
+    "recommendedPerks": [
+      "アスリート",
+      "健康II",
+      "リード・ベリー",
+      "第一対応者"
+    ]
   },
   {
     "id": "trollge",
@@ -687,12 +584,13 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "トロールジ",
     "class": "UMBRA",
     "danger": "DEVASTATING",
-    "attackType": "掴み即死（専用キル演出あり）",
-    "proximityClue": "空間が歪む重低音ノイズ、床が軋むギシギシ音",
+    "attackType": "近接接触 (即死)",
+    "proximityClue": "画面に走る走査線ノイズ、ギシギシとした重い足音",
     "iconUrl": "./public/icons/slashers/trollge.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/1/18/Trollge.png",
     "stats": {
       "intelligence": 50,
-      "hearing": 100,
+      "hearing": 110,
       "eyesight": 20,
       "intuition": 0,
       "fov": 160,
@@ -702,29 +600,30 @@ import React, { useState, useMemo } from 'react';
       "patience": 70,
       "walkSpeed": "0.8 m/s",
       "patientSpeed": "0.5 m/s",
-      "sneakSpeed": "0.7 m/s",
-      "chaseSpeed": "5.0 m/s (+0.2 m/s)",
-      "stunDuration": "18.0s",
+      "sneakSpeed": "0.5 m/s",
+      "chaseSpeed": "5.0 m/s (+0.25 m/s)",
+      "stunDuration": "20.0s",
       "angerTarget": "0.8x",
       "angerPassive": "1.0x",
-      "angerChase": "3.0x (チェイス時怒り激増)"
+      "angerChase": "3.0x"
     },
     "traits": [
-      "不気味な歪んだ笑顔（トロールフェイス）を浮かべる純血の怪異。",
-      "「動くもの」にしか視覚が反応しない。視界内で歩行、頭や手を動かす、ライトを照らすと睨み状態に移行し、さらに動くと5.0 m/sの即死突進を開始する。",
-      "ANGER 60%以上になると聴力が跳ね上がり、遠くの物音に向かって猛ダッシュする。"
+      "「動いたプレイヤー」にのみ反応して襲いかかる（だるまさんが転んだ）。移動、手足頭を動かす、ライト点灯などを行うと「睨みモーション」に入り、その状態で動くと即死チェイス開始。",
+      "ANGERに比例して聴力が爆発的に上昇し、60%以上で大きな音を聞くとその場所へ向かって猛ダッシュしてくる（接触即死）。",
+      "音の調査時はプレイヤーではなく「音の地点」を目指すため追跡BGMが鳴らない。"
     ],
     "tips": [
-      "【絶対の生存ルール：だるまさんがころんだ】睨まれたらVRの手や頭を含め「1ミリも動かない」こと。通り過ぎるまで静止すれば助かる。",
-      "【ライト厳禁】ライトの光を当てた瞬間、即死ターゲットされる。照らされた壁越しでも反応するため点灯は最小限に。",
-      "パーク『影産まれ』（消灯時に暗視能力UP）が最高の特効メタパーク。"
+      "ノイズが走ったりミシミシ足音が聞こえたら絶対に動かず静止する。睨まれても完全に動きを止めれば立ち去る。",
+      "ライトは照らされた壁や物にも判定があるため、廊下では完全消灯し部屋の中だけで使用する。",
+      "発電機の電力復旧作業中は体を動かしていない扱いになるため作業続行可能（ただしライト消灯必須）。",
+      "耳が極めて良いため、邪魔な時は遠くへ瓶などのアイテムを投げれば調査へ誘導できる。チェイス時はバルカンブースト（15.0m/s）でのみ引き離せる。"
     ],
     "recommendedPerks": [
-      "影産まれ (絶対推奨！)",
       "軽い足取り",
-      "沈む流し台"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/8/88/Trollge.png"
+      "沈む流し台",
+      "ソリッド・ジョン",
+      "影産まれ"
+    ]
   },
   {
     "id": "the_watcher",
@@ -732,54 +631,10 @@ import React, { useState, useMemo } from 'react';
     "japaneseName": "ザ・ウォッチャー",
     "class": "UMBRA",
     "danger": "DEVASTATING",
-    "attackType": "視線凝視即死",
-    "proximityClue": "規則正しい革靴の足音、暗闇で赤く爛々と輝く二つ目",
+    "attackType": "近接接触 (即死)",
+    "proximityClue": "カツ、カツと響くゆっくりとした革靴の音、赤く光る目",
     "iconUrl": "./public/icons/slashers/the_watcher.png",
-    "stats": {
-      "intelligence": 50,
-      "hearing": 75,
-      "eyesight": 60,
-      "intuition": 20,
-      "fov": 120,
-      "curiosity": 80,
-      "deviousness": 60,
-      "commitment": 30,
-      "patience": 80,
-      "walkSpeed": "1.1 m/s",
-      "patientSpeed": "0.7 m/s",
-      "sneakSpeed": "1.0 m/s",
-      "chaseSpeed": "3.7 m/s (+0.4 m/s)",
-      "stunDuration": "2.25s / 11.75s",
-      "angerTarget": "1.25x",
-      "angerPassive": "0.6x",
-      "angerChase": "2.5x (視認中怒り激増)"
-    },
-    "traits": [
-      "高身長で暗闇に赤く光る目を持つ監視者。",
-      "視界内にサバイバーを捉えている間、ANGERが恐ろしい勢いで上昇する（視認人数が多いほど倍加）。",
-      "【ANGER 50%未満】見つめて立ち去るが、50%以上で立ち去らなくなり、100%で即死攻撃を開始する。"
-    ],
-    "tips": [
-      "赤い目が見えたら視界に入らないよう、遮蔽物に素早く隠れて視線を切る。",
-      "チェイス時は視界外でも正確に位置を捕捉されるため、隠れるのではなく角を曲がりまくって距離を離す。",
-      "マルチプレイ時は他プレイヤーを巻き込まない逃走ルートを選択しよう。"
-    ],
-    "recommendedPerks": [
-      "アドレナリン・ラッシュ",
-      "軽い足取り",
-      "影産まれ"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/1/16/S_watcher.png"
-  },
-  {
-    "id": "free_smiley_dealer",
-    "name": "Free Smiley Dealer",
-    "japaneseName": "フリー・スマイリー・ディーラー",
-    "class": "UMBRA",
-    "danger": "DEVASTATING",
-    "attackType": "ミニオン集団包囲自爆",
-    "proximityClue": "甲高い笑い声、無数の小さな足音",
-    "iconUrl": "./public/icons/slashers/free_smiley_dealer.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/77/S_watcher.png",
     "stats": {
       "intelligence": 100,
       "hearing": 55,
@@ -791,75 +646,271 @@ import React, { useState, useMemo } from 'react';
       "commitment": 50,
       "patience": 80,
       "walkSpeed": "1.4 m/s",
-      "patientSpeed": "0.5 m/s",
-      "sneakSpeed": "1.0 m/s",
-      "chaseSpeed": "3.9 m/s (+0.2 m/s)",
-      "stunDuration": "20.0s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "0.6 m/s",
+      "chaseSpeed": "3.9 m/s (+0.438 m/s)",
+      "stunDuration": "2.25s",
       "angerTarget": "0.5x",
-      "angerPassive": "0x",
+      "angerPassive": "0.0x",
       "angerChase": "1.0x"
     },
     "traits": [
-      "2種類のスマイリーミニオン（自爆特攻するZany、移動速度低下を付与するPensive）を大量召喚する。",
-      "ミニオンに目撃されると本体に位置が即時通報される。",
-      "ANGERが25%上昇するごとに、サバイバーのバフ効果を強制全解除する。"
+      "時間経過によるANGER上昇は0！だがプレイヤーを視認しているとANGERが上昇し続ける（見られている人数に比例）。",
+      "ANGER 50%未満は見つめて立ち去るが、50%以上で立ち去らなくなり、100%に達すると殺人モードへ突入。",
+      "チェイス中に視界外へ逃げたプレイヤーの位置を正確に追跡・特定し続ける（ANGER 100%で最大14秒間壁越し追跡）。",
+      "スタン時間が2.25秒と極短。ソリッド・ジョンが無効（ロッカー初回即死）。"
     ],
     "tips": [
-      "ミニオンに見られている時にロッカーに入ると即座に看破されるため厳禁。",
-      "ミニオンはスタン攻撃で倒せるが、自爆と同じ爆風小ダメージがあるため距離に注意。",
-      "バフ解除があるため、ドーピングアイテムはここぞという瞬間に使用する。"
+      "視力が一般的なスラッシャーの倍近く（55）あり、遠くから見つめられやすい。目が赤く光っているのを見かけたら即座に物陰へ隠れて視線を切る。",
+      "人数が多いほどANGERが急上昇するため、固まらずに単独行動を心がける。",
+      "一度チェイスに入ると壁越し追跡により隠れてやり過ごすのは不可能。角を何度も曲がって全力で遠くへ距離を取る。",
+      "B-GONEソーダや呪われた人形を使っても追跡が切れないため、脱出フェーズで見つからないステルス技術が問われる。"
+    ],
+    "recommendedPerks": [
+      "スピード狂",
+      "軽い足取り",
+      "影産まれ",
+      "エクストリーム・バフ"
+    ]
+  },
+  {
+    "id": "igor",
+    "name": "Igor",
+    "japaneseName": "イゴール",
+    "class": "DEMON",
+    "danger": "DEVASTATING",
+    "attackType": "近接接触 (即死) / 魔法による死体消滅",
+    "proximityClue": "画面の激しい揺れ・地響き、広範囲の眩しい赤い点滅光、専用BGM (WHAT'S GOOD)",
+    "iconUrl": "./public/icons/slashers/igor.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/8/87/S_tyler.png",
+    "stats": {
+      "intelligence": 100,
+      "hearing": 200,
+      "eyesight": 300,
+      "intuition": 100,
+      "fov": 160,
+      "curiosity": 100,
+      "deviousness": 0,
+      "commitment": 0,
+      "patience": 0,
+      "walkSpeed": "N/A",
+      "patientSpeed": "N/A",
+      "sneakSpeed": "N/A",
+      "chaseSpeed": "6.0 m/s (+加速)",
+      "stunDuration": "N/A (アイテム破壊)",
+      "angerTarget": "0.0x",
+      "angerPassive": "0.0x",
+      "angerChase": "0.0x"
+    },
+    "traits": [
+      "「Tyler The CREATOR」と「Tyler The DESTROYER」を切り替える最凶スラッシャー！",
+      "マップ上の初期ガソリンが2〜3個しか湧かず、残りはCREATORから入手する。",
+      "CREATOR時：歌を歌いながら徘徊。近づくとガソリンを召喚して渡してくれる（1個ごとにANGER +16）。約100秒後または警告サイレン後にDESTROYERへ変身。",
+      "DESTROYER時：6.0 m/s以上の超高速で画面を揺らしながらプレイヤーを虐殺しに徘徊（接触即死）。25分経過または脱出フェーズで永続DESTROYERモードへ変身。"
+    ],
+    "tips": [
+      "アイテムを差し出すと破壊モーションに入り、プレイヤーの身代わりとして時間を稼げる！（アイテム1個につきキル猶予1回）。",
+      "ガソリンをDESTROYERに渡すと即座にDESTROYERモードを強制終了させられる！",
+      "サイレンが鳴り終わる前に必ずロッカーや遮蔽に隠れ、ライトを消す。鳴り始めてから走ると聴力200に捕捉されて即死する。",
+      "CREATORをビール樽等で攻撃すると即座にDESTROYERに変身するため絶対に攻撃しないこと！脱出フェーズはアイテムを破壊させながら全員でヘリへ突撃する。"
+    ],
+    "recommendedPerks": [
+      "窮地",
+      "メカニック",
+      "会計士",
+      "第一対応者"
+    ]
+  },
+  {
+    "id": "speedrunner",
+    "name": "Speedrunner",
+    "japaneseName": "スピードランナー",
+    "class": "CRYPTID",
+    "danger": "DEVASTATING",
+    "attackType": "近接接触 (即死)",
+    "proximityClue": "ペタペタとした高速足音、激しいテクノBGM",
+    "iconUrl": "./public/icons/slashers/speedrunner.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/07/Speedrunner.png",
+    "stats": {
+      "intelligence": 70,
+      "hearing": 75,
+      "eyesight": 30,
+      "intuition": 20,
+      "fov": 120,
+      "curiosity": 25,
+      "deviousness": 0,
+      "commitment": 0,
+      "patience": 0,
+      "walkSpeed": "N/A",
+      "patientSpeed": "N/A",
+      "sneakSpeed": "N/A",
+      "chaseSpeed": "0.6 m/s (+6.4 m/s)",
+      "stunDuration": "10.0s",
+      "angerTarget": "0.0x",
+      "angerPassive": "6.5x",
+      "angerChase": "0.0x"
+    },
+    "traits": [
+      "基本的に時間経過でのみANGERが爆速で上昇（常時6.5倍）。歩行の概念がなく捜索・追跡ともに同じ速度。",
+      "ANGER 50%でプレイヤー速度（4.0m/s）を超え、ANGER MAX（脱出フェーズ）で全スラッシャー最速の7.0 m/sに達する！",
+      "ANGER MAX到達時に10秒間の準備モーションを行い、その後マップ全域を爆走し始める。"
+    ],
+    "tips": [
+      "序盤（0.6〜2.0m/s）は非常に足が遅いため、見つかっても落ち着いてガソリンを入れられる。いかに序盤でジェネレーターを急速完了させるかが全て。",
+      "後半や脱出フェーズ（7.0m/s）は通常走行や牛乳では絶対に逃げ切れない。確実に振り切れる唯一の手段は「バルカンブースト（15.0m/s）」。",
+      "スタン時間は10秒。発動の早い「砂の入った袋」が極めて有効（Px-EMCやポーチライトは弾速が追いつかない）。",
+      "死のお守りで10秒、ロッカーキルで約15秒の拘束モーションが入るため、味方への時間稼ぎとして機能する。"
+    ],
+    "recommendedPerks": [
+      "メカニックIII",
+      "窮地",
+      "第一対応者",
+      "アスリート"
+    ]
+  },
+  {
+    "id": "featherface",
+    "name": "Featherface",
+    "japaneseName": "フェザーフェイス",
+    "class": "CRYPTID",
+    "danger": "DEVASTATING",
+    "attackType": "ライフル銃撃 (1〜5ダメージ) / パイプ爆弾投擲 (最大7ダメージ) / 360度乱射",
+    "proximityClue": "ズシズシとした重い足音、スペイン語の怒鳴り声・叫び声、陽気なBGM",
+    "iconUrl": "./public/icons/slashers/featherface.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7b/Featherface_icon.png",
+    "stats": {
+      "intelligence": 40,
+      "hearing": 60,
+      "eyesight": 30,
+      "intuition": 10,
+      "fov": 80,
+      "curiosity": 75,
+      "deviousness": 30,
+      "commitment": 80,
+      "patience": 70,
+      "walkSpeed": "2.0 m/s",
+      "patientSpeed": "1.0 m/s",
+      "sneakSpeed": "0.8 m/s",
+      "chaseSpeed": "4.0 m/s (+0.25 m/s)",
+      "stunDuration": "13.25s",
+      "angerTarget": "1.25x",
+      "angerPassive": "0.5x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "現状DEVASTATING枠で唯一「即死攻撃を持たない」銃撃スラッシャー。",
+      "姿が見えるとライフルを連射し、ANGERに応じて命中精度と射撃速度が上昇。さらに高威力のパイプ爆弾を投擲してくる（爆弾は自身にも命中し自爆スタンする）。",
+      "スタンさせると約1秒後に数秒間、360度回転しながら弾幕を乱射する反撃を行う。"
+    ],
+    "tips": [
+      "音に非常に敏感で、ライトのオンオフや些細な物音を聞きつけて寄ってくる。",
+      "スタンさせると360度乱射で周囲全体に被弾するため、スタン直後は必ず遮蔽物に身を隠す。",
+      "射撃前に構えの時間があるため、射線が通らないよう曲がり角を縫って移動する。",
+      "即死ではないが細かい削りダメージが激しいため、オレンジゼリー（被ダメ軽減）や健康II（自動回復）、コストコの冷凍ピザ（銃撃ガード）が極めて刺さる。"
     ],
     "recommendedPerks": [
       "健康II",
-      "不死身タンク構成",
-      "知覚過敏"
+      "リード・ベリー",
+      "コストコの冷凍ピザ",
+      "第一対応者"
+    ]
+  },
+  {
+    "id": "free_smiley_dealer",
+    "name": "Free Smiley Dealer",
+    "japaneseName": "フリー・スマイリー・ディーラー",
+    "class": "UMBRA",
+    "danger": "DEVASTATING",
+    "attackType": "本体接触 (即死) / ミニオン自爆 (3ダメージ) / 全体バフ解除攻撃 (2ダメージ)",
+    "proximityClue": "ブツブツ何かを喋る声、ヘラヘラした奇妙な笑い声、召喚時のグチャッとした音",
+    "iconUrl": "./public/icons/slashers/free_smiley_dealer.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7b/Freesmileydealer.png",
+    "stats": {
+      "intelligence": 50,
+      "hearing": 75,
+      "eyesight": 60,
+      "intuition": 20,
+      "fov": 120,
+      "curiosity": 80,
+      "deviousness": 60,
+      "commitment": 30,
+      "patience": 80,
+      "walkSpeed": "0.8 m/s",
+      "patientSpeed": "0.5 m/s",
+      "sneakSpeed": "0.5 m/s",
+      "chaseSpeed": "3.5 m/s (+0.2 m/s)",
+      "stunDuration": "11.0s",
+      "angerTarget": "1.0x",
+      "angerPassive": "1.0x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "2種類のミニオン「Free Smileys」を大量召喚する：",
+      "・Zany（ゼイニー）：高笑いしながら素早く走り回り、接触で自爆（固定3ダメージ）。",
+      "・Pensive（ペンシブ）：プレイヤーの移動速度を低下（-0.25m/s、約8秒間）させ本体に捕まりやすくする。自壊時に小範囲3ダメージ。",
+      "ANGERが25%上昇するごとに黄色いエフェクトと共に「プレイヤーの全バフ効果を強制解除する全体攻撃（非致死性2ダメージ）」を発動（バルカンやソーダも解除）。",
+      "本体自身の移動速度は遅いが、本体接触は即死。"
     ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/08/Freesmileydealer.png"
+    "tips": [
+      "Pensiveの減速デバフを食らうと本体やZanyに轢かれるため、「スピード狂」パークで減速を無効化するのが極めて強力なメタ対策となる。",
+      "ミニオンに追われたらロッカーに入れば追跡を中断可能（ただし本体に見られていないこと）。",
+      "全体攻撃や自爆でHPを削られやすいため、健康IIやリード・ベリーなどの耐久系パークが非常に有効。",
+      "ミニオンをスタンさせると自爆判定で周囲にダメージが出るため素手や近距離でのスタンは避ける。"
+    ],
+    "recommendedPerks": [
+      "スピード狂",
+      "健康II",
+      "リード・ベリー",
+      "アスリート"
+    ]
   },
   {
     "id": "the_hat_man",
     "name": "The Hat Man",
-    "japaneseName": "ザ・ハットマン",
+    "japaneseName": "ハットマン",
     "class": "N/A",
     "danger": "UNKNOWN",
-    "attackType": "接触即死 (チャレンジペナルティあり)",
-    "proximityClue": "爆音の不協和音BGM、耳鳴り",
+    "attackType": "近接接触 (即死) / 蜘蛛群れの削り攻撃 (1ダメージ)",
+    "proximityClue": "接近時の不気味な爆音BGM、蜘蛛のカサカサ足音",
     "iconUrl": "./public/icons/slashers/the_hat_man.png",
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/7/7b/S_hatman.png",
     "stats": {
-      "intelligence": "測定不能",
-      "hearing": "測定不能",
-      "eyesight": "測定不能",
-      "intuition": 100,
-      "fov": 360,
-      "curiosity": "??",
-      "deviousness": "??",
-      "commitment": "??",
-      "patience": "??",
-      "walkSpeed": "常時接近",
-      "patientSpeed": "??",
-      "sneakSpeed": "??",
-      "chaseSpeed": "即死接近",
-      "stunDuration": "視認で5〜25秒テレポートスタン",
-      "angerTarget": "??",
-      "angerPassive": "??",
-      "angerChase": "??"
+      "intelligence": "???",
+      "hearing": "???",
+      "eyesight": "???",
+      "intuition": "???",
+      "fov": "???",
+      "curiosity": "???",
+      "deviousness": "???",
+      "commitment": "???",
+      "patience": "???",
+      "walkSpeed": "4.0 m/s",
+      "patientSpeed": "4.0 m/s",
+      "sneakSpeed": "4.0 m/s",
+      "chaseSpeed": "4.0 m/s (最大5.0 m/s)",
+      "stunDuration": "5〜25s",
+      "angerTarget": "???",
+      "angerPassive": "???",
+      "angerChase": "???"
     },
     "traits": [
-      "アイテム「25gのベナドリル」を服用したサバイバーの前に1分後出現する幻覚の裏ボス。",
-      "常にプレイヤーの座標を捕捉して歩み寄り、触れると即死する。",
-      "サバイバーが視認するとその場で停止し、見つめ続けると画面暗転とともにマップのどこかへワープ＆スタンする。"
+      "アイテム「25Gのベナドリル」を使用すると1分後に大量の蜘蛛と共に出現する裏ボス。",
+      "常にプレイヤーの位置を把握して迫る（接触即死）。",
+      "至近距離で視認すると静止して爆音BGMが鳴り、見つめ続けると画面が暗転してマップ上のどこかへワープ＆5〜25秒スタンする。スタンアイテムを当てても同様にワープする。",
+      "本来のスラッシャーと二重で存在し、逃げ切ると「ベナドリル・チャレンジ」の累積報酬を獲得できる（ただしキルされると報酬リセット）。"
     ],
     "tips": [
-      "視界に捉えてワープさせることで距離を取れる。見晴らしの良い開けた場所で対峙するのが有利。",
-      "完全に視線を外すと静かに接近して激突死するため、「少し見ては離れる」を繰り返して距離と位置をコントロールする。",
-      "キルされると蓄積したチャレンジ報酬がリセットされるため細心の注意を払う。"
+      "見つめすぎるとワープして位置を見失い衝突事故が起きるため、少し見ては視線を外して位置を管理しながら逃げる。",
+      "薄い壁に密着していると壁越し接触で即死することがあるため、壁から離れて行動する。",
+      "「窮地」パークを装備しておくと事故死を1度だけ防いでワープさせられるため必須級のお守りとなる。",
+      "蜘蛛からの削りダメージ対策として「健康II」（自動回復）の併用が鉄板。"
     ],
     "recommendedPerks": [
-      "アドレナリン・ラッシュ",
-      "軽い足取り",
-      "健康"
-    ],
-    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/5/5e/S_hatman.png"
+      "窮地",
+      "健康II",
+      "メカニックII",
+      "エクストリーム・バフ"
+    ]
   }
 ];
 
