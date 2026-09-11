@@ -1,0 +1,4549 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlashCO 総合タクティカル・データベース (パーク & スラッシャー)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #18181b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #52525b;
+    }
+  </style>
+</head>
+<body class="selection:bg-green-500 selection:text-black min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // =========================================================================
+    // 公式Wiki完全準拠 スラッシャーデータベース (全19体)
+    // =========================================================================
+    const SLASHERS_DATA = [
+  {
+    "id": "bababooey",
+    "name": "Bababooey",
+    "japaneseName": "ババブーイ",
+    "class": "CRYPTID",
+    "danger": "MODERATE",
+    "attackType": "近接ダメージ (HP削り)",
+    "proximityClue": "ペチペチとした湿った足音、他プレイヤー追跡時の不気味な笑い声",
+    "iconUrl": "./public/icons/slashers/bababooey.png",
+    "stats": {
+      "intelligence": 80,
+      "hearing": 75,
+      "eyesight": 25,
+      "intuition": 40,
+      "fov": 100,
+      "curiosity": 70,
+      "deviousness": 75,
+      "commitment": 60,
+      "patience": 50,
+      "walkSpeed": "2.0 m/s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "1.5 m/s",
+      "chaseSpeed": "3.96 m/s (+0.24 m/s)",
+      "stunDuration": "9.5s",
+      "angerTarget": "0.6x",
+      "angerPassive": "0.1x",
+      "angerChase": "0.3x"
+    },
+    "traits": [
+      "黒い体に不気味な模様が入った人型生物。暗闇でも比較的視認しやすい。",
+      "音やライトを感知すると足音を消し、両手を上げてゆっくりと忍び寄ってくる（巧妙さ75）。",
+      "【ANGER 50%】透明化能力を解禁。長時間プレイヤー未発見時に大音響と共に透明化（接触まで走れない）。接触でジャンプスケアを起こすダミークローンを配置。",
+      "【ANGER 60%】移動速度が通常時の1.2倍に上昇する。"
+    ],
+    "tips": [
+      "聴力（75）が高いため、ガソリン缶を壁にぶつけたり不用意に走るのを控え、ライトもこまめに消灯する。",
+      "攻撃直後に一定時間立ち止まる硬直があるため、曲がり角の直前で被弾してから角を曲がると視線を切って撒きやすい。",
+      "攻撃力が高く通常2発で死亡するため、HP管理と角を利用した視界切りチェイスが極めて有効。"
+    ],
+    "recommendedPerks": [
+      "軽い足取り",
+      "沈む流し台",
+      "健康",
+      "影産まれ"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/5/5a/Bababooey.png"
+  },
+  {
+    "id": "abomignat",
+    "name": "Abomignat",
+    "japaneseName": "アボミグナット",
+    "class": "CRYPTID",
+    "danger": "MODERATE",
+    "attackType": "近接攻撃",
+    "proximityClue": "虫のような低周波の羽音・這いずり音",
+    "iconUrl": "./public/icons/slashers/abomignat.png",
+    "stats": {
+      "intelligence": 10,
+      "hearing": 25,
+      "eyesight": 30,
+      "intuition": 100,
+      "fov": 200,
+      "curiosity": 25,
+      "deviousness": 35,
+      "commitment": 10,
+      "patience": 50,
+      "walkSpeed": "2.0 m/s",
+      "patientSpeed": "1.0 m/s",
+      "sneakSpeed": "0.9 m/s",
+      "chaseSpeed": "4.0 m/s (+0.32 m/s)",
+      "stunDuration": "12.0s",
+      "angerTarget": "0.5x",
+      "angerPassive": "0.2x",
+      "angerChase": "0.4x"
+    },
+    "traits": [
+      "知能（10）や聴力（25）は極めて低いが、直感（100）がMAX値の異形生物。",
+      "音がなくても直感によってプレイヤーの現在位置へ正確に目的地を設定して巡回してくる。",
+      "視野角が200°と広角だが、遠くを見る視力（30）は低い。"
+    ],
+    "tips": [
+      "知能が10と最低ランクのため、ガラス瓶を投げての陽動やロッカーへの隠蔽が100%成功する。",
+      "直感が高いため「何もないのに近づいてくる」ことが多いが、ロッカーや遮蔽物に隠れていれば素通りさせやすい。",
+      "スタン時間が12秒と長いため、近接されたらスタンアイテムで時間を稼ごう。"
+    ],
+    "recommendedPerks": [
+      "GROUCH化",
+      "ソリッド・ジョン",
+      "軽い足取り",
+      "沈む流し台"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/97/S_abomignat.png"
+  },
+  {
+    "id": "father_elmer",
+    "name": "Father Elmer",
+    "japaneseName": "ファーザー・エルマー",
+    "class": "CRYPTID",
+    "danger": "MODERATE",
+    "attackType": "近接攻撃",
+    "proximityClue": "重々しい足音、祈りの呟き・不穏な衣擦れ音",
+    "iconUrl": "./public/icons/slashers/father_elmer.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 60,
+      "eyesight": 30,
+      "intuition": 30,
+      "fov": 120,
+      "curiosity": 80,
+      "deviousness": 30,
+      "commitment": 20,
+      "patience": 50,
+      "walkSpeed": "1.9 m/s",
+      "patientSpeed": "1.0 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "4.0 m/s (+0.2 m/s)",
+      "stunDuration": "24.0s (全スラッシャー最長！)",
+      "angerTarget": "1.0x",
+      "angerPassive": "0.05x",
+      "angerChase": "0.2x"
+    },
+    "traits": [
+      "牧師の黒衣を纏った長身のスラッシャー。",
+      "好奇心が80と高く、物音がした場所へ積極的に見回りに来る。",
+      "驚異的な弱点として、あらゆるスタン効果に対して24秒間も完全行動不能になる。"
+    ],
+    "tips": [
+      "スタンアイテム（ポーチライト、石灰、フライパンなど）を1発当てるだけで24秒間も無力化できる。遭遇したら積極的にスタンを狙おう。",
+      "知能が20と低いため、ロッカー隠れや陽動にも弱い。",
+      "チェイス時の速度は4.0m/sとプレイヤーと同速なので、障害物を使って走れば距離を保ちやすい。"
+    ],
+    "recommendedPerks": [
+      "メカニック",
+      "アドレナリン・ラッシュ",
+      "知覚過敏"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/e/e7/S_elmer.png"
+  },
+  {
+    "id": "manspider",
+    "name": "Manspider",
+    "japaneseName": "マンスパイダー",
+    "class": "CRYPTID",
+    "danger": "MODERATE",
+    "attackType": "近接毒攻撃",
+    "proximityClue": "無数の節足が擦れ合うカサカサ音、威嚇の噴気音",
+    "iconUrl": "./public/icons/slashers/manspider.png",
+    "stats": {
+      "intelligence": 40,
+      "hearing": 30,
+      "eyesight": 25,
+      "intuition": 50,
+      "fov": 300,
+      "curiosity": 80,
+      "deviousness": 50,
+      "commitment": 25,
+      "patience": 0,
+      "walkSpeed": "2.0 m/s (+1.33 m/s)",
+      "patientSpeed": "n/a",
+      "sneakSpeed": "n/a",
+      "chaseSpeed": "3.95 m/s (+0.25 m/s)",
+      "stunDuration": "4.25s",
+      "angerTarget": "1.0x",
+      "angerPassive": "0.75x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "人の頭部を持つ巨大蜘蛛。視野角が300°と背後まで見渡せる。",
+      "マップ内の通路やドア枠に「蜘蛛の巣（Nest）」を設置し、触れたサバイバーの移動速度を大幅低下させる。",
+      "忍耐力0でせっかち。スタン時間は4.25秒と短い。"
+    ],
+    "tips": [
+      "設置された蜘蛛の巣に絡まるとチェイス時に致命的。移動ルート上の巣の位置を把握しておく。",
+      "背後からの回り込みも300°の広角視野で察知されるため、角や遮蔽物を利用して接近を避ける。",
+      "足音はカサカサと鳴り響くため音での接近察知は容易。"
+    ],
+    "recommendedPerks": [
+      "軽い足取り",
+      "知覚過敏",
+      "健康II"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/4/4b/Manspider_icon.png"
+  },
+  {
+    "id": "borgmire",
+    "name": "Borgmire",
+    "japaneseName": "ボーグマイア",
+    "class": "CRYPTID",
+    "danger": "CONSIDERABLE",
+    "attackType": "近接粉砕攻撃",
+    "proximityClue": "ズシズシと地響きを立てる超重量足音",
+    "iconUrl": "./public/icons/slashers/borgmire.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 60,
+      "eyesight": 45,
+      "intuition": 20,
+      "fov": 65,
+      "curiosity": 50,
+      "deviousness": 20,
+      "commitment": 30,
+      "patience": 90,
+      "walkSpeed": "1.25 m/s",
+      "patientSpeed": "0.5 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "4.5 m/s (+0.2 m/s)",
+      "stunDuration": "4.0s",
+      "angerTarget": "2.0x",
+      "angerPassive": "0.8x",
+      "angerChase": "-3.5x (特殊仕様)"
+    },
+    "traits": [
+      "巨躯を誇る重量級スラッシャー。直線チェイス速度が4.5 m/sとプレイヤー（4.0 m/s）より大幅に速い！",
+      "視野角が65°と全スラッシャー中最も狭い（トンネル視野）。",
+      "【特殊仕様】プレイヤーを追跡（チェイス）している間、怒り（ANGER）が-3.5倍の勢いで激減していく。"
+    ],
+    "tips": [
+      "視野角がわずか65°しかないため、至近距離でも横や斜め後ろに回り込むだけで簡単に視界から消えることができる。",
+      "直線通路で逃げると追いつかれるため、入り組んだ部屋や曲がり角をジグザグに逃げて視線を切り続けよう。",
+      "知能（20）が低いため、角を曲がった直後のロッカー隠れも非常に刺さる。"
+    ],
+    "recommendedPerks": [
+      "軽い足取りII",
+      "ソリッド・ジョン",
+      "GROUCH化"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/09/Borgmire.png"
+  },
+  {
+    "id": "dolphinman",
+    "name": "Dolphinman",
+    "japaneseName": "ドルフィンマン",
+    "class": "CRYPTID",
+    "danger": "CONSIDERABLE",
+    "attackType": "近接突進攻撃",
+    "proximityClue": "イルカ特有の甲高いクリック音・エコー音",
+    "iconUrl": "./public/icons/slashers/dolphinman.png",
+    "stats": {
+      "intelligence": 90,
+      "hearing": 90,
+      "eyesight": 5,
+      "intuition": 5,
+      "fov": 120,
+      "curiosity": 50,
+      "deviousness": 40,
+      "commitment": 80,
+      "patience": 100,
+      "walkSpeed": "1.4 m/s",
+      "patientSpeed": "0.4 m/s",
+      "sneakSpeed": "0.8 m/s",
+      "chaseSpeed": "4.0 m/s (+0.4 m/s)",
+      "stunDuration": "10.2s",
+      "angerTarget": "1.25x",
+      "angerPassive": "1.25x",
+      "angerChase": "1.5x"
+    },
+    "traits": [
+      "視力がほぼゼロ（5）だが、聴力（90）と知能（90）が最高峰の盲目ハンター。",
+      "マップ内の微細な音（足音、給油音、アイテム落下音）をエコーロケーションで感知する。",
+      "知能90のため、同じ場所で投げたガラス瓶やロッカーの誤魔化しは即座に見破られる。"
+    ],
+    "tips": [
+      "「走らない・音を立てない」が絶対原則。しゃがみ歩きであれば、目の前を通り過ぎても気づかれない。",
+      "『軽い足取り』パーク（足音軽減）が最大のメタ。音を遮断すれば完全に無力化できる。",
+      "ガソリン缶を壁にぶつけたり、走って飛び込む行為は厳禁。"
+    ],
+    "recommendedPerks": [
+      "軽い足取り",
+      "軽い足取りII",
+      "メカニックIII"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/d/df/S_dolphinman.png"
+  },
+  {
+    "id": "speedrunner",
+    "name": "Speedrunner",
+    "japaneseName": "スピードランナー",
+    "class": "CRYPTID",
+    "danger": "DEVASTATING",
+    "attackType": "超高速即死体当たり",
+    "proximityClue": "早送り動画のようなけたたましい足音と電子音",
+    "iconUrl": "./public/icons/slashers/speedrunner.png",
+    "stats": {
+      "intelligence": 70,
+      "hearing": 75,
+      "eyesight": 30,
+      "intuition": 20,
+      "fov": 120,
+      "curiosity": 25,
+      "deviousness": 0,
+      "commitment": 0,
+      "patience": 0,
+      "walkSpeed": "n/a",
+      "patientSpeed": "n/a",
+      "sneakSpeed": "n/a",
+      "chaseSpeed": "0.6 m/s (+6.4 m/s → 最大7.0 m/s！)",
+      "stunDuration": "10.0s",
+      "angerTarget": "0x",
+      "angerPassive": "6.5x (驚異的自動怒り蓄積)",
+      "angerChase": "0x"
+    },
+    "traits": [
+      "時間経過による怒り増加が「6.5x」とゲーム内最速。放っておくと急速に怒りMAXへ到達する。",
+      "チェイス時の加速が凶悪で、怒りに応じて最大7.0 m/s（プレイヤーの1.75倍！）という音速突進を仕掛けてくる。",
+      "通常歩行を行わず、静止と突進を繰り返す特殊挙動。"
+    ],
+    "tips": [
+      "【時間との勝負】長期戦は死を意味する。給油タスクを最優先で電光石火で終わらせる。",
+      "チェイスされたら直線で逃げても1秒で追いつかれる。部屋の出入り口、柱、障害物をぐるぐる回る「グルチェ」で時間を稼ごう。",
+      "スタン時間10秒を最大限活かすため、スタンアイテムを複数人で用意しておくと延命できる。"
+    ],
+    "recommendedPerks": [
+      "メカニック",
+      "メカニックII",
+      "アドレナリン・ラッシュ",
+      "窮地"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/1/10/Speedrunner.png"
+  },
+  {
+    "id": "featherface",
+    "name": "Featherface",
+    "japaneseName": "フェザーフェイス",
+    "class": "CRYPTID",
+    "danger": "DEVASTATING",
+    "attackType": "近接即死切り裂き",
+    "proximityClue": "鳥の羽ばたき音、甲高い啼き声",
+    "iconUrl": "./public/icons/slashers/featherface.png",
+    "stats": {
+      "intelligence": 40,
+      "hearing": 60,
+      "eyesight": 30,
+      "intuition": 10,
+      "fov": 80,
+      "curiosity": 75,
+      "deviousness": 30,
+      "commitment": 80,
+      "patience": 70,
+      "walkSpeed": "2.0 m/s",
+      "patientSpeed": "0.55 m/s",
+      "sneakSpeed": "0.8 m/s",
+      "chaseSpeed": "4.0 m/s (+0.25 m/s)",
+      "stunDuration": "13.25s",
+      "angerTarget": "1.25x",
+      "angerPassive": "0.5x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "鳥の羽毛に覆われた頭部を持つDEVASTATINGスラッシャー。",
+      "「調査への取り組み」が80と極めて高く、一度音を聞いた場所を長時間徹底的に調べ尽くす執念深さを持つ。",
+      "視野角は80°と狭めだが、スタン耐性は標準的（13.25秒）。"
+    ],
+    "tips": [
+      "調査への取り組み（80）の高さを逆手に取り、遠くへ石や瓶を投げて大きな音を立てると、長時間そのエリアから動かなくなる。",
+      "自分が音を立ててしまった場合は即座にその場から離脱し、別のエリアへ退避すること。"
+    ],
+    "recommendedPerks": [
+      "沈む流し台",
+      "軽い足取り",
+      "知覚過敏"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/f/f7/Featherface_icon.png"
+  },
+  {
+    "id": "the_grouch",
+    "name": "The Grouch",
+    "japaneseName": "ザ・グラウチ",
+    "class": "DEMON",
+    "danger": "MODERATE",
+    "attackType": "急襲即死噛みつき",
+    "proximityClue": "ゴミ箱を漁る金属摩擦音、不平不満の呟き",
+    "iconUrl": "./public/icons/slashers/the_grouch.png",
+    "stats": {
+      "intelligence": 0,
+      "hearing": 50,
+      "eyesight": 30,
+      "intuition": 100,
+      "fov": 120,
+      "curiosity": 100,
+      "deviousness": 0,
+      "commitment": 0,
+      "patience": 10,
+      "walkSpeed": "0.7 m/s",
+      "patientSpeed": "0.5 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "5.0 m/s (+0.25 m/s)",
+      "stunDuration": "3s + 8s at 3m/s / 60〜120s (ベナドリル特効！)",
+      "angerTarget": "1.25x",
+      "angerPassive": "1.75x",
+      "angerChase": "0.25x"
+    },
+    "traits": [
+      "ゴミ箱やロッカーに潜伏する悪魔系スラッシャー。",
+      "普段の歩行は0.7 m/sと鈍重だが、チェイス突入時は5.0 m/sの超猛スピードで突進してくる。",
+      "知能が0なのでロッカーの看破などは一切できない。"
+    ],
+    "tips": [
+      "【特効薬：ベナドリル】ベナドリルを投与すると、なんと60秒〜120秒（1〜2分間）も爆睡して完全無力化する。",
+      "チェイス速度が5.0m/sと速いため、遭遇したらすぐに角を曲がってロッカーに入るか、ベナドリルを使用する。",
+      "ロッカーを開ける瞬間に潜んでいる場合があるため、近づく際は音を聞き分ける。"
+    ],
+    "recommendedPerks": [
+      "GROUCH化",
+      "ソリッド・ジョン",
+      "軽い足取りII"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/a/a1/S_grouch.png"
+  },
+  {
+    "id": "sid",
+    "name": "Sid",
+    "japaneseName": "シド",
+    "class": "DEMON",
+    "danger": "CONSIDERABLE",
+    "attackType": "近接凶器攻撃",
+    "proximityClue": "荒い息遣い、刃物を引きずる金属音",
+    "iconUrl": "./public/icons/slashers/sid.png",
+    "stats": {
+      "intelligence": 30,
+      "hearing": 60,
+      "eyesight": 30,
+      "intuition": 30,
+      "fov": 100,
+      "curiosity": 30,
+      "deviousness": 40,
+      "commitment": 40,
+      "patience": 25,
+      "walkSpeed": "1.8 m/s",
+      "patientSpeed": "0.8 m/s",
+      "sneakSpeed": "1.0 m/s",
+      "chaseSpeed": "3.9 m/s (+0.18 m/s)",
+      "stunDuration": "ポケット・フェンタニルで特殊中断",
+      "angerTarget": "1.5x",
+      "angerPassive": "0.25x",
+      "angerChase": "0.5x"
+    },
+    "traits": [
+      "薬物依存の狂気にとらわれたDemonスラッシャー。",
+      "プレイヤーを執拗に追い詰めるが、特定の薬物アイテムに異常な執着を示す。"
+    ],
+    "tips": [
+      "アイテム「ポケット・フェンタニル」を投げ与えることで、追跡を中断させて無害化できる。",
+      "チェイス速度は3.9 m/sとプレイヤーよりわずかに遅いため、スタミナを切らさず走り続ければ追いつかれない。"
+    ],
+    "recommendedPerks": [
+      "アドレナリン・ラッシュ",
+      "商人",
+      "健康"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/9a/S_sid.png"
+  },
+  {
+    "id": "thirsty",
+    "name": "Thirsty",
+    "japaneseName": "サースティ",
+    "class": "DEMON",
+    "danger": "CONSIDERABLE",
+    "attackType": "捕獲脱水攻撃",
+    "proximityClue": "喉を鳴らすゴクゴク音、水滴の垂れる音",
+    "iconUrl": "./public/icons/slashers/thirsty.png",
+    "stats": {
+      "intelligence": 70,
+      "hearing": 65,
+      "eyesight": 50,
+      "intuition": 100,
+      "fov": 90,
+      "curiosity": 75,
+      "deviousness": 30,
+      "commitment": 80,
+      "patience": 80,
+      "walkSpeed": "1.0 m/s",
+      "patientSpeed": "0.3 m/s",
+      "sneakSpeed": "0.4 m/s",
+      "chaseSpeed": "4.0 m/s (+0.75 m/s)",
+      "stunDuration": "16.0s (長めのスタン)",
+      "angerTarget": "0.35x",
+      "angerPassive": "2.25x",
+      "angerChase": "1.25x"
+    },
+    "traits": [
+      "絶え間ない渇きに苦しむDemon。液体や飲料に強く引き寄せられる。",
+      "直感（100）が高く、チェイス後半には+0.75 m/sと大幅に加速する。",
+      "スタン時間が16秒と非常に長い。"
+    ],
+    "tips": [
+      "「牛乳 (Milk)」や「ソーダ」などの飲料アイテムを地面に置くことで、興味を惹きつけて足止め可能。",
+      "スタン時間が16秒と長いため、フライパンやポーチライトでスタンさせてからタスクを進行させると安全。"
+    ],
+    "recommendedPerks": [
+      "大食いチャンピオン",
+      "沈む流し台",
+      "知覚過敏"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/b/b2/S_thirsty.png"
+  },
+  {
+    "id": "princess",
+    "name": "Princess",
+    "japaneseName": "プリンセス",
+    "class": "DEMON",
+    "danger": "CONSIDERABLE",
+    "attackType": "背後急襲即死",
+    "proximityClue": "かすかな鈴の音、爪が床を擦るカチカチ音",
+    "iconUrl": "./public/icons/slashers/princess.png",
+    "stats": {
+      "intelligence": 80,
+      "hearing": 75,
+      "eyesight": 30,
+      "intuition": 15,
+      "fov": 120,
+      "curiosity": 75,
+      "deviousness": 100,
+      "commitment": 20,
+      "patience": 70,
+      "walkSpeed": "1.5 m/s",
+      "patientSpeed": "0.55 m/s",
+      "sneakSpeed": "1.0 m/s",
+      "chaseSpeed": "4.0 m/s (+0.2 m/s)",
+      "stunDuration": "10.0s",
+      "angerTarget": "1.0x",
+      "angerPassive": "0.5x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "「巧妙さ 100」という完全無音ステルス能力を持つDemon犬。",
+      "足音を完全に消してプレイヤーの死角（背後）へと忍び寄り、気づかないうちに即死奇襲を仕掛けてくる。",
+      "知能も80と高いため、ロッカー隠れも見抜かれやすい。"
+    ],
+    "tips": [
+      "音が全くしないため、定期的に360度周囲を見回す警戒が必要。",
+      "犬用おやつ（Dog Treat）を携帯しておくことで、接近されても懐かせてピンチを脱出できる。",
+      "『知覚過敏』パークで足音増幅を狙うか、背後を壁にして給油作業を行うのが有効。"
+    ],
+    "recommendedPerks": [
+      "知覚過敏",
+      "影産まれ",
+      "窮地"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/f/f2/Princess.png"
+  },
+  {
+    "id": "igor",
+    "name": "IGOR",
+    "japaneseName": "イゴール",
+    "class": "DEMON",
+    "danger": "DEVASTATING",
+    "attackType": "時速6m/sの壊滅的虐殺",
+    "proximityClue": "重厚な警報サイレン、エンジン爆音",
+    "iconUrl": "./public/icons/slashers/igor.png",
+    "stats": {
+      "intelligence": 100,
+      "hearing": 200,
+      "eyesight": 300,
+      "intuition": 100,
+      "fov": 160,
+      "curiosity": 100,
+      "deviousness": 0,
+      "commitment": 0,
+      "patience": 0,
+      "walkSpeed": "n/a",
+      "patientSpeed": "n/a",
+      "sneakSpeed": "n/a",
+      "chaseSpeed": "6.0 m/s (超高速！)",
+      "stunDuration": "2.2s / 20〜30s (ビール樽 Beer 特効！)",
+      "angerTarget": "0x",
+      "angerPassive": "0x",
+      "angerChase": "0x"
+    },
+    "traits": [
+      "Creator（創造者）モードとDestroyer（破壊者）モードを切り替える最凶の機動兵器Demon。",
+      "マップ上の初期ガソリン缶が極端に少なくなり、CreatorモードのIGORに接近して燃料を受け取る必要がある。",
+      "Destroyerモードに移行すると、時速6.0 m/s（プレイヤーの1.5倍）という圧倒的速さでサバイバーを虐殺し始める。"
+    ],
+    "tips": [
+      "【特効アイテム：ビール樽 (Beer)】ビール樽をぶつけると泥酔し、20〜30秒間も大スタンさせることができる。",
+      "Destroyerモード中は全員で固まらず分散行動する。ターゲットされたプレイヤーは味方から離れて時間を稼ぐ。",
+      "Creatorモードの間に全員で急いで燃料を回収・給油しきることが生還の鍵。"
+    ],
+    "recommendedPerks": [
+      "メカニック",
+      "メカニックIII",
+      "スケープゴート",
+      "窮地"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/b/bb/S_tyler.png"
+  },
+  {
+    "id": "the_entity",
+    "name": "The Entity",
+    "japaneseName": "ジ・エンティティ",
+    "class": "UMBRA",
+    "danger": "MODERATE",
+    "attackType": "接触即死",
+    "proximityClue": "重い金属質な巨大足音（調査時は無音化）",
+    "iconUrl": "./public/icons/slashers/the_entity.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 65,
+      "eyesight": 40,
+      "intuition": 80,
+      "fov": 360,
+      "curiosity": 25,
+      "deviousness": 80,
+      "commitment": 80,
+      "patience": 100,
+      "walkSpeed": "1.5 m/s",
+      "patientSpeed": "0.6 m/s",
+      "sneakSpeed": "2.0 m/s",
+      "chaseSpeed": "3.8 m/s (+0.2 m/s)",
+      "stunDuration": "n/a (通常スタン無効)",
+      "angerTarget": "1.0x",
+      "angerPassive": "1.25x",
+      "angerChase": "1.5x"
+    },
+    "traits": [
+      "全方位360°の視野を持つ影の超常体。通常スタンが一切効かない。",
+      "【逆・だるまさんがころんだ】プレイヤー側が画面内にEntityを捉えている時しか追跡・視認判定が発生しない。",
+      "チェイス開始時に絶叫とともに透明化し、大まかな方角から聞こえる笑い声だけで位置を察知しなければならない。"
+    ],
+    "tips": [
+      "【絶対ルール：見ないこと】プレイヤーがEntityを見なければ認識されない。給油タスク中などは「あえて背中を向けて作業する」のが定石テクニック。",
+      "ただし背中を向けていても直接体がぶつかると即死するため、大きな金属足音の方向を常に耳で追うこと。",
+      "大きな物音の調査に向かう際は足音が極端に小さくなるため、音が消えたら近くに忍び寄っていると警戒しよう。"
+    ],
+    "recommendedPerks": [
+      "知覚過敏",
+      "軽い足取り",
+      "沈む流し台"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/c/c6/S_entity.png"
+  },
+  {
+    "id": "the_beast",
+    "name": "The Beast",
+    "japaneseName": "ザ・ビースト",
+    "class": "UMBRA",
+    "danger": "CONSIDERABLE",
+    "attackType": "引き裂き即死攻撃",
+    "proximityClue": "草を擦るカサカサ音、甲高く短い不気味な笑い声、ライトの激しいノイズ",
+    "iconUrl": "./public/icons/slashers/the_beast.png",
+    "stats": {
+      "intelligence": 20,
+      "hearing": 70,
+      "eyesight": 40,
+      "intuition": 90,
+      "fov": 90,
+      "curiosity": 80,
+      "deviousness": 90,
+      "commitment": 10,
+      "patience": 70,
+      "walkSpeed": "1.25 m/s",
+      "patientSpeed": "0.75 m/s",
+      "sneakSpeed": "0.85 m/s",
+      "chaseSpeed": "4.5 m/s (+0.3 m/s)",
+      "stunDuration": "14.0s (スタン有効)",
+      "angerTarget": "1.0x",
+      "angerPassive": "0.5x",
+      "angerChase": "1.25x"
+    },
+    "traits": [
+      "開幕からチェイス速度が4.5 m/sとプレイヤーより高速な野獣型Umbra。",
+      "近くにいるとライトの光が激しくノイズ点滅する。",
+      "【ANGER 80%未満】懐中電灯の光を当て続けると怯んで物陰に退散する。",
+      "【ANGER 40%以上】チェイス中にサバイバーが離れると金切り声を上げ、周囲のプレイヤー全員の移動速度低下＆ライト使用不能を引き起こす。"
+    ],
+    "tips": [
+      "序盤（怒り80%未満）はライトを顔面に照射して追い払うのが鉄則。",
+      "ライトに発生するノイズで壁越しの位置を把握できる。",
+      "スタン耐性が低く14秒も気絶するため、各種スタンアイテムを惜しまず使おう。"
+    ],
+    "recommendedPerks": [
+      "影産まれ",
+      "健康II",
+      "知覚過敏"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/9/93/S_beast.png"
+  },
+  {
+    "id": "trollge",
+    "name": "Trollge",
+    "japaneseName": "トロールジ",
+    "class": "UMBRA",
+    "danger": "DEVASTATING",
+    "attackType": "掴み即死（専用キル演出あり）",
+    "proximityClue": "空間が歪む重低音ノイズ、床が軋むギシギシ音",
+    "iconUrl": "./public/icons/slashers/trollge.png",
+    "stats": {
+      "intelligence": 50,
+      "hearing": 100,
+      "eyesight": 20,
+      "intuition": 0,
+      "fov": 160,
+      "curiosity": 80,
+      "deviousness": 30,
+      "commitment": 25,
+      "patience": 70,
+      "walkSpeed": "0.8 m/s",
+      "patientSpeed": "0.5 m/s",
+      "sneakSpeed": "0.7 m/s",
+      "chaseSpeed": "5.0 m/s (+0.2 m/s)",
+      "stunDuration": "18.0s",
+      "angerTarget": "0.8x",
+      "angerPassive": "1.0x",
+      "angerChase": "3.0x (チェイス時怒り激増)"
+    },
+    "traits": [
+      "不気味な歪んだ笑顔（トロールフェイス）を浮かべる純血の怪異。",
+      "「動くもの」にしか視覚が反応しない。視界内で歩行、頭や手を動かす、ライトを照らすと睨み状態に移行し、さらに動くと5.0 m/sの即死突進を開始する。",
+      "ANGER 60%以上になると聴力が跳ね上がり、遠くの物音に向かって猛ダッシュする。"
+    ],
+    "tips": [
+      "【絶対の生存ルール：だるまさんがころんだ】睨まれたらVRの手や頭を含め「1ミリも動かない」こと。通り過ぎるまで静止すれば助かる。",
+      "【ライト厳禁】ライトの光を当てた瞬間、即死ターゲットされる。照らされた壁越しでも反応するため点灯は最小限に。",
+      "パーク『影産まれ』（消灯時に暗視能力UP）が最高の特効メタパーク。"
+    ],
+    "recommendedPerks": [
+      "影産まれ (絶対推奨！)",
+      "軽い足取り",
+      "沈む流し台"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/8/88/Trollge.png"
+  },
+  {
+    "id": "the_watcher",
+    "name": "The Watcher",
+    "japaneseName": "ザ・ウォッチャー",
+    "class": "UMBRA",
+    "danger": "DEVASTATING",
+    "attackType": "視線凝視即死",
+    "proximityClue": "規則正しい革靴の足音、暗闇で赤く爛々と輝く二つ目",
+    "iconUrl": "./public/icons/slashers/the_watcher.png",
+    "stats": {
+      "intelligence": 50,
+      "hearing": 75,
+      "eyesight": 60,
+      "intuition": 20,
+      "fov": 120,
+      "curiosity": 80,
+      "deviousness": 60,
+      "commitment": 30,
+      "patience": 80,
+      "walkSpeed": "1.1 m/s",
+      "patientSpeed": "0.7 m/s",
+      "sneakSpeed": "1.0 m/s",
+      "chaseSpeed": "3.7 m/s (+0.4 m/s)",
+      "stunDuration": "2.25s / 11.75s",
+      "angerTarget": "1.25x",
+      "angerPassive": "0.6x",
+      "angerChase": "2.5x (視認中怒り激増)"
+    },
+    "traits": [
+      "高身長で暗闇に赤く光る目を持つ監視者。",
+      "視界内にサバイバーを捉えている間、ANGERが恐ろしい勢いで上昇する（視認人数が多いほど倍加）。",
+      "【ANGER 50%未満】見つめて立ち去るが、50%以上で立ち去らなくなり、100%で即死攻撃を開始する。"
+    ],
+    "tips": [
+      "赤い目が見えたら視界に入らないよう、遮蔽物に素早く隠れて視線を切る。",
+      "チェイス時は視界外でも正確に位置を捕捉されるため、隠れるのではなく角を曲がりまくって距離を離す。",
+      "マルチプレイ時は他プレイヤーを巻き込まない逃走ルートを選択しよう。"
+    ],
+    "recommendedPerks": [
+      "アドレナリン・ラッシュ",
+      "軽い足取り",
+      "影産まれ"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/1/16/S_watcher.png"
+  },
+  {
+    "id": "free_smiley_dealer",
+    "name": "Free Smiley Dealer",
+    "japaneseName": "フリー・スマイリー・ディーラー",
+    "class": "UMBRA",
+    "danger": "DEVASTATING",
+    "attackType": "ミニオン集団包囲自爆",
+    "proximityClue": "甲高い笑い声、無数の小さな足音",
+    "iconUrl": "./public/icons/slashers/free_smiley_dealer.png",
+    "stats": {
+      "intelligence": 100,
+      "hearing": 55,
+      "eyesight": 55,
+      "intuition": 100,
+      "fov": 100,
+      "curiosity": 70,
+      "deviousness": 20,
+      "commitment": 50,
+      "patience": 80,
+      "walkSpeed": "1.4 m/s",
+      "patientSpeed": "0.5 m/s",
+      "sneakSpeed": "1.0 m/s",
+      "chaseSpeed": "3.9 m/s (+0.2 m/s)",
+      "stunDuration": "20.0s",
+      "angerTarget": "0.5x",
+      "angerPassive": "0x",
+      "angerChase": "1.0x"
+    },
+    "traits": [
+      "2種類のスマイリーミニオン（自爆特攻するZany、移動速度低下を付与するPensive）を大量召喚する。",
+      "ミニオンに目撃されると本体に位置が即時通報される。",
+      "ANGERが25%上昇するごとに、サバイバーのバフ効果を強制全解除する。"
+    ],
+    "tips": [
+      "ミニオンに見られている時にロッカーに入ると即座に看破されるため厳禁。",
+      "ミニオンはスタン攻撃で倒せるが、自爆と同じ爆風小ダメージがあるため距離に注意。",
+      "バフ解除があるため、ドーピングアイテムはここぞという瞬間に使用する。"
+    ],
+    "recommendedPerks": [
+      "健康II",
+      "不死身タンク構成",
+      "知覚過敏"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/0/08/Freesmileydealer.png"
+  },
+  {
+    "id": "the_hat_man",
+    "name": "The Hat Man",
+    "japaneseName": "ザ・ハットマン",
+    "class": "N/A",
+    "danger": "UNKNOWN",
+    "attackType": "接触即死 (チャレンジペナルティあり)",
+    "proximityClue": "爆音の不協和音BGM、耳鳴り",
+    "iconUrl": "./public/icons/slashers/the_hat_man.png",
+    "stats": {
+      "intelligence": "測定不能",
+      "hearing": "測定不能",
+      "eyesight": "測定不能",
+      "intuition": 100,
+      "fov": 360,
+      "curiosity": "??",
+      "deviousness": "??",
+      "commitment": "??",
+      "patience": "??",
+      "walkSpeed": "常時接近",
+      "patientSpeed": "??",
+      "sneakSpeed": "??",
+      "chaseSpeed": "即死接近",
+      "stunDuration": "視認で5〜25秒テレポートスタン",
+      "angerTarget": "??",
+      "angerPassive": "??",
+      "angerChase": "??"
+    },
+    "traits": [
+      "アイテム「25gのベナドリル」を服用したサバイバーの前に1分後出現する幻覚の裏ボス。",
+      "常にプレイヤーの座標を捕捉して歩み寄り、触れると即死する。",
+      "サバイバーが視認するとその場で停止し、見つめ続けると画面暗転とともにマップのどこかへワープ＆スタンする。"
+    ],
+    "tips": [
+      "視界に捉えてワープさせることで距離を取れる。見晴らしの良い開けた場所で対峙するのが有利。",
+      "完全に視線を外すと静かに接近して激突死するため、「少し見ては離れる」を繰り返して距離と位置をコントロールする。",
+      "キルされると蓄積したチャレンジ報酬がリセットされるため細心の注意を払う。"
+    ],
+    "recommendedPerks": [
+      "アドレナリン・ラッシュ",
+      "軽い足取り",
+      "健康"
+    ],
+    "cdnUrl": "https://static.wikia.nocookie.net/slashco-vr/images/5/5e/S_hatman.png"
+  }
+];
+
+    const SLASHER_CLASSES = [
+      { id: 'CRYPTID', label: 'CRYPTID', ja: '未確認生物', desc: '積極的な徘徊・索敵・直接追跡型', color: 'text-green-400 border-green-500/50 bg-green-950/30' },
+      { id: 'DEMON', label: 'DEMON', ja: '悪魔', desc: '特定アイテムでの攻略ギミック型', color: 'text-red-400 border-red-500/50 bg-red-950/30' },
+      { id: 'UMBRA', label: 'UMBRA', ja: '影・超常', desc: '視界妨害・速度低下・妨害デバフ型', color: 'text-fuchsia-400 border-fuchsia-500/50 bg-fuchsia-950/30' },
+      { id: 'N/A', label: 'N/A', ja: '特殊', desc: 'ベナドリル服用時特殊出現', color: 'text-zinc-300 border-zinc-500/50 bg-zinc-900/50' },
+    ];
+
+    const SLASHER_DANGERS = [
+      { id: 'MODERATE', label: 'MODERATE', ja: '中', color: 'text-yellow-400 border-yellow-500/50 bg-yellow-950/40 shadow-yellow-500/10' },
+      { id: 'CONSIDERABLE', label: 'CONSIDERABLE', ja: '高', color: 'text-fuchsia-400 border-fuchsia-500/50 bg-fuchsia-950/40 shadow-fuchsia-500/10' },
+      { id: 'DEVASTATING', label: 'DEVASTATING', ja: '壊滅的', color: 'text-red-500 border-red-500/60 bg-red-950/50 shadow-red-500/20' },
+      { id: 'UNKNOWN', label: 'UNKNOWN', ja: '未知', color: 'text-zinc-300 border-zinc-500/50 bg-zinc-900/50 shadow-zinc-500/10' },
+    ];
+
+    // スラッシャーアバター画像 (ローカル優先 ＆ CDNフォールバック付き)
+    function SlasherAvatar({ slasher, className = "w-full h-full object-cover" }) {
+      const [imgSrc, setImgSrc] = useState(slasher.iconUrl || slasher.cdnUrl);
+      const [failed, setFailed] = useState(false);
+
+      React.useEffect(() => {
+        setImgSrc(slasher.iconUrl || slasher.cdnUrl);
+        setFailed(false);
+      }, [slasher.id, slasher.iconUrl, slasher.cdnUrl]);
+
+      const handleError = () => {
+        if (slasher.cdnUrl && imgSrc !== slasher.cdnUrl) {
+          setImgSrc(slasher.cdnUrl);
+        } else {
+          setFailed(true);
+        }
+      };
+
+      if (failed || !imgSrc) {
+        const bg =
+          slasher.class === 'CRYPTID' ? 'bg-gradient-to-br from-green-950 via-zinc-900 to-black text-green-400 border-green-500/40' :
+          slasher.class === 'DEMON' ? 'bg-gradient-to-br from-red-950 via-zinc-900 to-black text-red-400 border-red-500/40' :
+          slasher.class === 'UMBRA' ? 'bg-gradient-to-br from-fuchsia-950 via-zinc-900 to-black text-fuchsia-400 border-fuchsia-500/40' :
+          'bg-gradient-to-br from-zinc-900 via-zinc-800 to-black text-zinc-300 border-zinc-600/40';
+
+        return (
+          <div className={`w-full h-full rounded-lg border flex flex-col items-center justify-center p-1 text-center font-mono ${bg}`}>
+            <span className="text-xs sm:text-sm font-black tracking-wider uppercase">{slasher.name.slice(0, 2)}</span>
+            <span className="text-[7px] sm:text-[8px] opacity-70 truncate max-w-full font-bold">{slasher.class}</span>
+          </div>
+        );
+      }
+
+      return (
+        <img
+          src={imgSrc}
+          alt={slasher.name}
+          onError={handleError}
+          className={className}
+          loading="lazy"
+        />
+      );
+    }
+
+    // =========================================================================
+    // スラッシャー速度解析＆サバイバー比較ロジック
+    // =========================================================================
+    function getSpeedInfo(slasher) {
+      const rawChase = (slasher?.stats?.chaseSpeed || '').toString();
+      const rawWalk = (slasher?.stats?.walkSpeed || '').toString();
+
+      // 特殊エンティティ (The Hat Man など)
+      const matchChase = rawChase.match(/([0-9]+(?:\.[0-9]+)?)/);
+      if (!matchChase) {
+        return {
+          isSpecial: true,
+          minSpeed: null,
+          maxSpeed: null,
+          walkSpeed: null,
+          baseChaseSpeed: null,
+          speedRangeLabel: '特殊',
+          badgeClass: 'text-zinc-400 bg-zinc-800/90 border-zinc-700',
+          badgeText: '特殊',
+          description: '通常の移動速度判定はありません。サバイバーが視界に捉え続けることでテレポート＆一時無力化させます。'
+        };
+      }
+
+      let baseChaseSpeed = parseFloat(matchChase[1]);
+      let maxSpeed = baseChaseSpeed;
+
+      if (slasher.id === 'speedrunner' || rawChase.includes('7.0')) {
+        maxSpeed = 7.0;
+      } else {
+        const plusMatch = rawChase.match(/\(\+([0-9.]+)/);
+        if (plusMatch) {
+          maxSpeed = +(baseChaseSpeed + parseFloat(plusMatch[1])).toFixed(2);
+        }
+      }
+
+      // 通常歩行速度
+      const matchWalk = rawWalk.match(/([0-9]+(?:\.[0-9]+)?)/);
+      const walkSpeed = matchWalk ? parseFloat(matchWalk[1]) : null;
+
+      // 最低速度 (Speedrunnerは0.6、歩行があれば歩行速度、なければチェイス初速)
+      let minSpeed = baseChaseSpeed;
+      if (slasher.id === 'speedrunner') {
+        minSpeed = 0.6;
+      } else if (walkSpeed !== null) {
+        minSpeed = walkSpeed;
+      }
+
+      let speedRangeLabel = minSpeed === maxSpeed ? `${maxSpeed} m/s` : `${minSpeed} ~ ${maxSpeed} m/s`;
+      let badgeClass = maxSpeed >= 5.0
+        ? 'text-red-400 bg-red-950/70 border-red-500/50 font-bold'
+        : maxSpeed >= 4.0
+        ? 'text-amber-400 bg-amber-950/60 border-amber-500/50 font-bold'
+        : 'text-cyan-400 bg-cyan-950/60 border-cyan-500/50 font-bold';
+
+      return {
+        isSpecial: false,
+        minSpeed,
+        maxSpeed,
+        walkSpeed,
+        baseChaseSpeed,
+        speedRangeLabel,
+        badgeClass,
+        badgeText: speedRangeLabel,
+        description: minSpeed === maxSpeed
+          ? `移動速度は一定で ${maxSpeed} m/s です。`
+          : `索敵・歩行時の最低速度は ${minSpeed} m/s、追跡・激怒時は最大 ${maxSpeed} m/s まで加速します。`
+      };
+    }
+
+    // スラッシャー速度バー表示コンポーネント (最低速度 & 最高速度)
+    function SpeedAnalysisBlock({ slasher }) {
+      const speed = getSpeedInfo(slasher);
+      const MAX_SCALE = 7.0; // 全スラッシャー中最高速度 (Speedrunner 7.0 m/s)
+
+      if (speed.isSpecial) {
+        return (
+          <div className="bg-zinc-900/90 rounded-2xl p-4 border border-zinc-800 space-y-2 shadow-xl">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+              <span className="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                スラッシャー移動速度
+              </span>
+              <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-lg border text-zinc-300 border-zinc-600 bg-zinc-800">
+                特殊エンティティ
+              </span>
+            </div>
+            <div className="p-3 rounded-xl border border-zinc-700 bg-zinc-950/90 text-xs font-mono text-zinc-300 space-y-1">
+              <div className="flex items-center gap-2 text-white font-bold">
+                <span className="w-2 h-2 rounded-full bg-zinc-400"></span>
+                物理移動なし（視線対峙＆テレポート型）
+              </div>
+              <p className="text-[11px] text-zinc-400 leading-relaxed">
+                通常の移動速度判定はありません。サバイバーが視界に捉え続けることでテレポート＆一時無力化させます。
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      const minPct = Math.min(100, (speed.minSpeed / MAX_SCALE) * 100);
+      const maxPct = Math.min(100, (speed.maxSpeed / MAX_SCALE) * 100);
+
+      return (
+        <div className="bg-zinc-900/90 rounded-2xl p-4 border border-zinc-800 space-y-3.5 shadow-xl">
+          {/* 見出し ＆ レンジ表示 */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-zinc-800 pb-2.5">
+            <div className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+              スラッシャー移動速度 (最低速度 〜 最高速度)
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-100 flex items-center gap-1.5 shadow-sm">
+                速度レンジ: <span className="text-amber-400 font-black">{speed.speedRangeLabel}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* 速度バー表示エリア */}
+          <div className="bg-black/90 rounded-xl p-3.5 border border-zinc-800/90 space-y-3 relative overflow-hidden">
+            {/* 1. 最低速度バー */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-mono">
+                <span className="text-cyan-400 font-bold flex items-center gap-1.5">
+                  最低速度 {speed.walkSpeed ? '(歩行・索敵時)' : '(初速)'}
+                </span>
+                <span className="text-cyan-400 font-black">{speed.minSpeed} m/s</span>
+              </div>
+              <div className="w-full bg-zinc-900 h-3 rounded-full overflow-hidden relative border border-zinc-800 p-0.5">
+                <div
+                  className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(34,211,238,0.4)]"
+                  style={{ width: `${minPct}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* 2. 最高速度バー */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-mono">
+                <span className="text-rose-400 font-bold flex items-center gap-1.5">
+                  最高速度 (追跡・激怒時)
+                </span>
+                <span className="text-rose-400 font-black">{speed.maxSpeed} m/s</span>
+              </div>
+              <div className="w-full bg-zinc-900 h-3 rounded-full overflow-hidden relative border border-zinc-800 p-0.5">
+                <div
+                  className="bg-gradient-to-r from-orange-500 to-rose-500 h-full rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.5)]"
+                  style={{ width: `${maxPct}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* スケール目盛り (0 〜 7.0 m/s) */}
+            <div className="flex justify-between text-[9px] font-mono text-zinc-500 px-0.5 border-t border-zinc-800/80 pt-1.5">
+              <span>0 m/s</span>
+              <span>1.75 m/s</span>
+              <span>3.5 m/s</span>
+              <span>5.25 m/s</span>
+              <span>7.0 m/s (MAX)</span>
+            </div>
+          </div>
+
+          {/* 3分割 速度メトリクスカード (プレイヤー比較なし) */}
+          <div className="grid grid-cols-3 gap-2 text-center font-mono">
+            <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800/80">
+              <div className="text-[10px] text-zinc-500">索敵・巡回速度</div>
+              <div className="text-xs font-bold text-zinc-200 mt-1">{slasher.stats.walkSpeed || 'なし (即追跡)'}</div>
+            </div>
+            <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800/80">
+              <div className="text-[10px] text-zinc-500">追跡初速</div>
+              <div className="text-xs font-black text-cyan-400 mt-1">{speed.baseChaseSpeed} m/s</div>
+            </div>
+            <div className="bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800/80">
+              <div className="text-[10px] text-zinc-500">激怒・最高速度</div>
+              <div className="text-xs font-black text-rose-400 mt-1">{speed.maxSpeed} m/s</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // スラッシャー図鑑コンポーネント (早見表マトリクス & 詳細パネル)
+    function SlasherDatabaseView() {
+      const [selectedSlasherId, setSelectedSlasherId] = useState('bababooey');
+      const [viewMode, setViewMode] = useState('matrix'); // 'matrix' | 'grid'
+      const [classFilter, setClassFilter] = useState('ALL');
+      const [dangerFilter, setDangerFilter] = useState('ALL');
+      const [searchQuery, setSearchQuery] = useState('');
+
+      const selectedSlasher = useMemo(() => {
+        return SLASHERS_DATA.find(s => s.id === selectedSlasherId) || SLASHERS_DATA[0];
+      }, [selectedSlasherId]);
+
+      // フィルタリング
+      const filteredSlashers = useMemo(() => {
+        return SLASHERS_DATA.filter(s => {
+          if (classFilter !== 'ALL' && s.class !== classFilter) return false;
+          if (dangerFilter !== 'ALL' && s.danger !== dangerFilter) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            const hitName = s.name.toLowerCase().includes(q) || s.japaneseName.toLowerCase().includes(q);
+            const hitTrait = s.traits.some(t => t.toLowerCase().includes(q));
+            const hitTip = s.tips.some(t => t.toLowerCase().includes(q));
+            if (!hitName && !hitTrait && !hitTip) return false;
+          }
+          return true;
+        });
+      }, [classFilter, dangerFilter, searchQuery]);
+
+      return (
+        <div className="space-y-5">
+          {/* コントロールバー */}
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex bg-black p-1 rounded-xl border border-zinc-800">
+                <button
+                  onClick={() => setViewMode('matrix')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                    viewMode === 'matrix' ? 'bg-red-500 text-black shadow-md' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  早見表 (マトリクス)
+                </button>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                    viewMode === 'grid' ? 'bg-red-500 text-black shadow-md' : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  カード一覧
+                </button>
+              </div>
+
+              {/* 分類フィルター */}
+              <select
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                className="bg-black border border-zinc-800 text-xs text-zinc-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:border-red-500"
+              >
+                <option value="ALL">全分類 (Class: ALL)</option>
+                <option value="CRYPTID">CRYPTID (未確認生物)</option>
+                <option value="DEMON">DEMON (悪魔)</option>
+                <option value="UMBRA">UMBRA (影/超常)</option>
+                <option value="N/A">N/A (特殊)</option>
+              </select>
+
+              {/* 危険度フィルター */}
+              <select
+                value={dangerFilter}
+                onChange={(e) => setDangerFilter(e.target.value)}
+                className="bg-black border border-zinc-800 text-xs text-zinc-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:border-red-500"
+              >
+                <option value="ALL">全危険度 (Danger: ALL)</option>
+                <option value="MODERATE">MODERATE (中)</option>
+                <option value="CONSIDERABLE">CONSIDERABLE (高)</option>
+                <option value="DEVASTATING">DEVASTATING (壊滅的)</option>
+                <option value="UNKNOWN">UNKNOWN (未知)</option>
+              </select>
+            </div>
+
+            {/* 検索バー */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="スラッシャー名・特徴・対策で検索..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full md:w-64 bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-red-500 font-mono"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-2 text-zinc-500 hover:text-white text-xs"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* メインエリア: 左側一覧 ＆ 右側詳細 */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* 左側: 早見表マトリクス または グリッド */}
+            <div className="lg:col-span-7 space-y-4">
+              {viewMode === 'matrix' ? (
+                /* === 早見表マトリクス表 (画像・分類・難易度) === */
+                <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 shadow-2xl space-y-3">
+                  <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                    <div>
+                      <h2 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        Slasher Classification Matrix (分類 × 危険度 早見表)
+                      </h2>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">
+                        アイコンをクリックすると右側にパラメータ・特性・攻略が表示されます
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse text-left">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-[11px] font-mono">
+                          <th className="p-2 text-zinc-500 w-24">分類 / 危険度</th>
+                          {SLASHER_DANGERS.map(d => (
+                            <th key={d.id} className="p-2 text-center">
+                              <span className={`px-2 py-0.5 rounded font-black text-[10px] tracking-wider border ${d.color}`}>
+                                {d.label}
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/60">
+                        {SLASHER_CLASSES.map(cls => {
+                          return (
+                            <tr key={cls.id} className="hover:bg-zinc-800/20 transition">
+                              {/* 縦軸ラベル: 分類 */}
+                              <td className="p-2 align-middle">
+                                <div className="space-y-0.5">
+                                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-black border tracking-wider ${cls.color}`}>
+                                    {cls.label}
+                                  </span>
+                                  <div className="text-[10px] text-zinc-400 font-bold">{cls.ja}</div>
+                                  <div className="text-[9px] text-zinc-500 leading-tight hidden sm:block">{cls.desc}</div>
+                                </div>
+                              </td>
+
+                              {/* 横軸4セル: 各危険度のスラッシャー達 */}
+                              {SLASHER_DANGERS.map(d => {
+                                const matched = SLASHERS_DATA.filter(s => s.class === cls.id && s.danger === d.id);
+
+                                const renderSlasherBtn = (slasher) => {
+                                  const isSelected = selectedSlasherId === slasher.id;
+                                  const speed = getSpeedInfo(slasher);
+                                  return (
+                                    <button
+                                      key={slasher.id}
+                                      onClick={() => setSelectedSlasherId(slasher.id)}
+                                      className={`group flex flex-col items-center p-1 rounded-xl border transition-all duration-150 relative ${
+                                        isSelected
+                                          ? 'border-red-500 bg-red-950/60 shadow-[0_0_15px_rgba(239,68,68,0.5)] ring-2 ring-red-500 scale-105 z-10'
+                                          : 'border-zinc-800 bg-black/80 hover:border-zinc-500 hover:bg-zinc-800/60'
+                                      }`}
+                                      title={`${slasher.name} (${slasher.japaneseName}) - 追跡速度: ${slasher.stats?.chaseSpeed || '特殊'}`}
+                                    >
+                                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg overflow-hidden bg-black flex items-center justify-center border border-zinc-700/60 group-hover:border-white transition">
+                                        <SlasherAvatar slasher={slasher} className="w-full h-full object-cover" />
+                                      </div>
+                                      <span className={`text-[9px] sm:text-[10px] font-mono font-bold mt-0.5 max-w-[52px] sm:max-w-[58px] truncate text-center transition ${
+                                        isSelected ? 'text-red-400' : 'text-zinc-300 group-hover:text-white'
+                                      }`}>
+                                        {slasher.name}
+                                      </span>
+                                      {isSelected && (
+                                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>
+                                      )}
+                                    </button>
+                                  );
+                                };
+
+                                return (
+                                  <td key={d.id} className="p-2 align-middle text-center">
+                                    {matched.length === 0 ? (
+                                      <span className="text-zinc-700 text-xs font-mono">-</span>
+                                    ) : matched.length === 3 ? (
+                                      /* 3体の場合: 上に1つ、下に2つのピラミッド配置 */
+                                      <div className="grid grid-cols-2 gap-1.5 justify-items-center w-fit mx-auto">
+                                        <div className="col-span-2 flex justify-center">
+                                          {renderSlasherBtn(matched[0])}
+                                        </div>
+                                        <div className="flex justify-center">
+                                          {renderSlasherBtn(matched[1])}
+                                        </div>
+                                        <div className="flex justify-center">
+                                          {renderSlasherBtn(matched[2])}
+                                        </div>
+                                      </div>
+                                    ) : matched.length === 4 ? (
+                                      /* 4体の場合: 2x2のグリッド配置 */
+                                      <div className="grid grid-cols-2 gap-1.5 justify-items-center w-fit mx-auto">
+                                        {matched.map(slasher => (
+                                          <div key={slasher.id} className="flex justify-center">
+                                            {renderSlasherBtn(slasher)}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      /* 1体または2体の場合: 中央揃え */
+                                      <div className="flex flex-wrap gap-1.5 justify-center items-center w-fit mx-auto">
+                                        {matched.map(slasher => renderSlasherBtn(slasher))}
+                                      </div>
+                                    )}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                /* === カードグリッド一覧表示 === */
+                <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 shadow-2xl space-y-3">
+                  <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                    <span className="text-xs font-mono text-zinc-400">
+                      検索該当: <span className="text-white font-bold">{filteredSlashers.length}</span> 体
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {filteredSlashers.map(slasher => {
+                      const isSelected = selectedSlasherId === slasher.id;
+                      const dangerBadge = SLASHER_DANGERS.find(d => d.id === slasher.danger);
+
+                      return (
+                        <button
+                          key={slasher.id}
+                          onClick={() => setSelectedSlasherId(slasher.id)}
+                          className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? 'border-red-500 bg-red-950/50 ring-2 ring-red-500 shadow-lg'
+                              : 'border-zinc-800 bg-black hover:border-zinc-600 hover:bg-zinc-900/80'
+                          }`}
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-black border border-zinc-700">
+                            <SlasherAvatar slasher={slasher} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-black text-white truncate font-mono">{slasher.name}</div>
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${dangerBadge?.color}`}>
+                                {slasher.danger}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 右側: 選択中スラッシャーの詳細データベース */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="bg-black border-2 border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5 sticky top-5">
+                
+                {/* 看板ヘッダー */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 border-b border-zinc-800 pb-4">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-black border-2 border-zinc-600 shrink-0 shadow-2xl relative">
+                    <SlasherAvatar slasher={selectedSlasher} className="w-full h-full object-cover" />
+                    <span className="absolute bottom-1 right-1 text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-black/80 text-zinc-300 border border-zinc-700">
+                      {selectedSlasher.class}
+                    </span>
+                  </div>
+
+                  <div className="text-center sm:text-left space-y-1.5 flex-1">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
+                      <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded border ${
+                        SLASHER_CLASSES.find(c => c.id === selectedSlasher.class)?.color
+                      }`}>
+                        CLASS: {selectedSlasher.class}
+                      </span>
+                      <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded border ${
+                        SLASHER_DANGERS.find(d => d.id === selectedSlasher.danger)?.color
+                      }`}>
+                        DANGER: {selectedSlasher.danger}
+                      </span>
+                    </div>
+
+                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-mono">
+                      {selectedSlasher.name}
+                    </h2>
+                    <div className="text-xs text-zinc-400 font-bold">
+                      和名: {selectedSlasher.japaneseName}
+                    </div>
+
+                    <div className="pt-1 text-[11px] font-mono text-zinc-400 space-y-0.5">
+                      <div><span className="text-zinc-500">攻撃タイプ:</span> <span className="text-red-400 font-bold">{selectedSlasher.attackType}</span></div>
+                      <div className="leading-tight"><span className="text-zinc-500">接近予兆:</span> <span className="text-yellow-400/90">{selectedSlasher.proximityClue}</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 移動速度 ブロック */}
+                <SpeedAnalysisBlock slasher={selectedSlasher} />
+
+                {/* 17大ステータス パラメータ一覧 */}
+                <div className="space-y-2.5">
+                  <div className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-800 pb-1">
+                    スラッシャー感知・環境パラメータ
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                    {/* 知能 */}
+                    <div className="bg-zinc-900/80 p-2 rounded-xl border border-zinc-800">
+                      <div className="flex justify-between text-zinc-400 text-[11px]">
+                        <span>知能 (Intelligence)</span>
+                        <span className="text-white font-bold">{selectedSlasher.stats.intelligence}</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1.5">
+                        <div className="bg-blue-500 h-full rounded-full" style={{ width: `${Math.min(100, Number(selectedSlasher.stats.intelligence) || 0)}%` }}></div>
+                      </div>
+                      <span className="text-[9px] text-zinc-500">※瓶陽動・ロッカー看破力</span>
+                    </div>
+
+                    {/* 聴力 */}
+                    <div className="bg-zinc-900/80 p-2 rounded-xl border border-zinc-800">
+                      <div className="flex justify-between text-zinc-400 text-[11px]">
+                        <span>聴力 (Hearing)</span>
+                        <span className="text-white font-bold">{selectedSlasher.stats.hearing}</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1.5">
+                        <div className="bg-green-500 h-full rounded-full" style={{ width: `${Math.min(100, (Number(selectedSlasher.stats.hearing) || 0) / 2)}%` }}></div>
+                      </div>
+                      <span className="text-[9px] text-zinc-500">※足音・物音感知距離</span>
+                    </div>
+
+                    {/* 視力 */}
+                    <div className="bg-zinc-900/80 p-2 rounded-xl border border-zinc-800">
+                      <div className="flex justify-between text-zinc-400 text-[11px]">
+                        <span>視力 (Eyesight)</span>
+                        <span className="text-white font-bold">{selectedSlasher.stats.eyesight}</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1.5">
+                        <div className="bg-amber-500 h-full rounded-full" style={{ width: `${Math.min(100, (Number(selectedSlasher.stats.eyesight) || 0) / 2)}%` }}></div>
+                      </div>
+                      <span className="text-[9px] text-zinc-500">※遠視・視界深度</span>
+                    </div>
+
+                    {/* 直感 */}
+                    <div className="bg-zinc-900/80 p-2 rounded-xl border border-zinc-800">
+                      <div className="flex justify-between text-zinc-400 text-[11px]">
+                        <span>直感 (Intuition)</span>
+                        <span className="text-white font-bold">{selectedSlasher.stats.intuition}</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1.5">
+                        <div className="bg-purple-500 h-full rounded-full" style={{ width: `${Math.min(100, Number(selectedSlasher.stats.intuition) || 0)}%` }}></div>
+                      </div>
+                      <span className="text-[9px] text-zinc-500">※生存者座標特定確率</span>
+                    </div>
+                  </div>
+
+                  {/* その他感知・怒り倍率詳細テーブル */}
+                  <div className="bg-zinc-900/90 rounded-xl p-2.5 border border-zinc-800 text-[11px] font-mono space-y-1.5">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                      <div><span className="text-zinc-500">視野角 (FOV):</span> <span className="text-zinc-200 font-bold">{selectedSlasher.stats.fov}°</span></div>
+                      <div><span className="text-zinc-500">スタン耐性:</span> <span className="text-green-400 font-bold">{selectedSlasher.stats.stunDuration}</span></div>
+                      <div><span className="text-zinc-500">怒り蓄積 (常時):</span> <span className="text-zinc-300 font-bold">{selectedSlasher.stats.angerPassive}</span></div>
+                      <div><span className="text-zinc-500">怒り蓄積 (チェイス):</span> <span className="text-amber-400 font-bold">{selectedSlasher.stats.angerChase}</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 特性・行動パターン */}
+                <div className="space-y-2">
+                  <div className="text-xs font-mono font-bold text-green-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-800 pb-1">
+                    特性・行動パターン
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-zinc-300">
+                    {selectedSlasher.traits.map((trait, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5 leading-relaxed bg-zinc-900/60 p-2 rounded-lg border border-zinc-800/80">
+                        <span className="text-green-500 font-bold shrink-0">▸</span>
+                        <span>{trait}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* 攻略法・対策 */}
+                <div className="space-y-2">
+                  <div className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-800 pb-1">
+                    攻略法・サバイバル対策
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-zinc-300">
+                    {selectedSlasher.tips.map((tip, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5 leading-relaxed bg-zinc-900/60 p-2 rounded-lg border border-red-950/40">
+                        <span className="text-red-400 font-bold shrink-0">✓</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* 相性の良いおすすめパーク */}
+                {selectedSlasher.recommendedPerks && selectedSlasher.recommendedPerks.length > 0 && (
+                  <div className="pt-2 border-t border-zinc-800 space-y-1.5">
+                    <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-1">
+                      対策おすすめパーク:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedSlasher.recommendedPerks.map((perkName, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded-lg bg-green-950/60 border border-green-500/40 text-[11px] font-mono font-bold text-green-400 shadow-sm"
+                        >
+                          {perkName}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+
+const PERKS_DATA = [
+      // TIER I (Lvl 1, 1 PP)
+      {
+        id: 't1_mech1', tier: 1, levelReq: 1, name: 'メカニック', ppCost: 1,
+        flavor: '人生で一度は自転車を見たことがあるボランティア。他の人より一歩リードしているのは確かだ。',
+        buffs: ['給油速度が+50％', '給油失敗時の極端な給油ゲージの傾きを無効にする'], debuffs: [],
+        icon: './public/icons/perks/t1_mech1.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_mech1.png?rev=656030885fb79ff8f5e3c160fdad3f4d&t=20260110203807',
+        statBonus: { fuelSpeed: 50 }
+      },
+      {
+        id: 't1_healthy1', tier: 1, levelReq: 1, name: '健康', ppCost: 1,
+        flavor: '胃腸が頑丈なサバイバー。コストコの冷凍ピザをそのまま平らげることができる。',
+        buffs: ['消費アイテム回復量50％UP', 'コストコの冷凍ピザが食べられる。'], debuffs: [],
+        icon: './public/icons/perks/t1_healthy1.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_healthy1.png?rev=a4968cf1f3bbff9f4e708307b8f1fdfa&t=20260110203758',
+        statBonus: { maxHealth: 15 }
+      },
+      {
+        id: 't1_adr', tier: 1, levelReq: 1, name: 'アドレナリン・ラッシュ', ppCost: 1,
+        flavor: 'ヘリのローター音が生存本能を刺激する。脱出の好機を逃さない。',
+        buffs: ['ヘリコプター着陸時に数十秒間小加速、僅かな回復、軽度視界効果付与'], debuffs: [],
+        icon: './public/icons/perks/t1_adr.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_adr.png?rev=8403c4d5cb96f6b34e5b04316db2179e&t=20260110203750',
+        statBonus: { sprintSpeed: 5 }
+      },
+      {
+        id: 't1_hyper', tier: 1, levelReq: 1, name: '知覚過敏', ppCost: 1,
+        flavor: '神経を研ぎ澄まし、周囲の微細な足音をキャッチする。',
+        buffs: ['Slasherの足音が大きくなる。'], debuffs: [],
+        icon: './public/icons/perks/t1_hyper.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_hyper.png?rev=6a6ea95fc67ec8f942d3c4a5e063e405&t=20260110203741',
+        statBonus: { special: 'スラッシャー足音強調' }
+      },
+      {
+        id: 't1_uncle', tier: 1, levelReq: 1, name: '沈む流し台', ppCost: 1,
+        flavor: 'ガラス瓶すら咀嚼する異様な食道。極限状態でのリサイクル栄養補給。',
+        buffs: ['ボトルが食べる事が出来、僅かに回復できる。'], debuffs: [],
+        icon: './public/icons/perks/t1_uncle.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_uncle.png?rev=066ccd9df6a62890bbcbc990eb49dd30&t=20260110203731',
+        statBonus: { special: '空ボトル捕食回復' }
+      },
+      {
+        id: 't1_panicsense', tier: 1, levelReq: 1, name: 'パニック・センス', ppCost: 1,
+        flavor: '時間切れが迫るにつれ研ぎ澄まされる第六感。残された物資の光を捉える。',
+        buffs: ['ラウンド開始から20分経過後、毎分1回、最も近い燃料・バッテリー・文書のオーラを短時間確認できる能力を得る。'], debuffs: [],
+        icon: './public/icons/perks/t1_panicsense.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_panicsense.webp?rev=2f0722096a5e3c06521bf04498018947&t=20260110204539',
+        statBonus: { special: '20分後物資オーラ透視' }
+      },
+
+      // TIER II (Lvl 3, 2 PP)
+      {
+        id: 't2_mech2', tier: 2, levelReq: 3, name: 'メカニックII', ppCost: 2,
+        flavor: '高電圧バッテリーの取り扱いに精通した技術員。感電事故を防ぐ。',
+        buffs: ['バッテリー挿入難易度易化、挿入失敗時ダメージ無効化'], debuffs: [],
+        icon: './public/icons/perks/t2_mech2.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_mech2.png?rev=8750350292da40dbc871f10b079a11e1&t=20260110204614',
+        statBonus: { fuelSpeed: 25, special: 'バッテリー感電無効' }
+      },
+      {
+        id: 't2_treasure', tier: 2, levelReq: 3, name: 'バウンティハンター', ppCost: 2,
+        flavor: '金目の物や任務目標を見つけ出す嗅覚。暗闇の中でも対象が淡く輝く。',
+        buffs: ['依頼に関連するすべてのアイテムがかすかに光る。'], debuffs: [],
+        icon: './public/icons/perks/t2_treasure.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_treasure.png?rev=06d19ca70859af6aee70f4f9df9aeb4e&t=20260110204621',
+        statBonus: { special: '依頼アイテム発光表示' }
+      },
+      {
+        id: 't2_mcnally', tier: 2, levelReq: 3, name: 'マックナリー・ハンズ', ppCost: 2,
+        flavor: '南京錠を開ける名人。解錠スキルは高いが、本業の報酬分配には少しルーズ。',
+        buffs: ['マスターロック607を使用した際に壊れづらくなる。', '開錠した際に少しの経験値とクレジットを得る。'],
+        debuffs: ['ガソリンを入れた時及び機密文書を入手した際のクレジットが減る。'],
+        icon: './public/icons/perks/t2_mcnally.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/McNally_Hands_perk_icon.webp?rev=915250cf52a764a9862448f6f1c59d8a&t=20260110204628'
+      },
+      {
+        id: 't2_addict', tier: 2, levelReq: 3, name: 'スピード狂', ppCost: 2,
+        flavor: '常に最高速を求める暴走癖。減速トラップを無視するが、加速の消耗も激しい。',
+        buffs: ['移動速度が遅くなる効果の影響を受けなくなる。'],
+        debuffs: ['移動速度増加の効果時間の減りが25%速くなる。'],
+        icon: './public/icons/perks/t2_addict.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_addict.png?rev=45b7e28453364144d74cbb3d4981f1d2&t=20260110204637',
+        statBonus: { special: '鈍足デバフ完全無効' }
+      },
+      {
+        id: 't2_shadow', tier: 2, levelReq: 3, name: '影産まれ', ppCost: 2,
+        flavor: '暗闇の中で瞳孔が開き、漆黒の回廊でも周囲を見渡せるようになる。',
+        buffs: ['懐中電灯を使用していない間、徐々に暗闇での視力を高める。'], debuffs: [],
+        icon: './public/icons/perks/t2_shadow.png',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/perk_shadow.png?rev=4b2f92f1a42c4ac46f034d667c4386ad&t=20260110204645',
+        statBonus: { special: '消灯時暗視パッシブ' }
+      },
+      {
+        id: 't2_mukbang', tier: 2, levelReq: 3, name: '大食いチャンピオン', ppCost: 2,
+        flavor: '豪快な食事風景が周囲の仲間を勇気づける。おすそ分けの精神。',
+        buffs: ['消費アイテムによる回復効果は、半径6m以内の全プレイヤーに付与。'],
+        debuffs: ['最低一人のプレイヤーに付与されると、自身の回復量が大幅減少。'],
+        icon: './public/icons/perks/t2_mukbang.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_mukbang.webp?rev=1da3a90b80b3d2b369fc2dbca9601626&t=20260110204652',
+        statBonus: { special: '半径6m味方同時回復' }
+      },
+
+      // TIER III (Lvl 5, 2 PP)
+      {
+        id: 't3_merchant', tier: 3, levelReq: 5, name: '商人', ppCost: 2,
+        flavor: '巧妙な価格交渉術。不要なアイテムを高く売り抜ける。',
+        buffs: ['アイテムの買取率を50%に引き上げる。'], debuffs: [],
+        icon: './public/icons/perks/t3_merchant.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_merchant.webp?rev=41ef283b26dde30944896563af14be9d&t=20260110204945'
+      },
+      {
+        id: 't3_lightfoot', tier: 3, levelReq: 5, name: '軽い足取り', ppCost: 2,
+        flavor: '忍び歩きで気配を消す。速度を少し犠牲にして静粛性を獲得。',
+        buffs: ['自身の足音の大きさが50%減少する。'],
+        debuffs: ['移動速度が5%減少。'],
+        icon: './public/icons/perks/t3_lightfoot.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_lightfoot.webp?rev=8a90a43d7121bb689479f58d37945ed4&t=20260110204954',
+        statBonus: { sprintSpeed: -5, special: '足音50%低減' }
+      },
+      {
+        id: 't3_healthy2', tier: 3, levelReq: 5, name: '健康II', ppCost: 2,
+        flavor: '驚異的な自然治癒力。瀕死寸前からでもじわじわと回復する。',
+        buffs: ['消費アイテムの回復量が50%アップ。', '体力が50%以下になると、20秒毎に僅かに体力が回復する。'], debuffs: [],
+        icon: './public/icons/perks/t3_healthy2.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_healthy2.webp?rev=0e2bb2ab5cb3e2e34c7d682f63bceed4&t=20260110205001',
+        statBonus: { maxHealth: 20, special: 'HP50%以下で自動回復' }
+      },
+      {
+        id: 't3_heavy', tier: 3, levelReq: 5, name: 'ヘビー', ppCost: 2,
+        flavor: '筋肉と脂肪の厚い鎧。一撃耐えられるタフネス。',
+        buffs: ['最大体力が少し増加。'], debuffs: [],
+        icon: './public/icons/perks/t3_heavy.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_heavy.webp?rev=204f4aa926e81ce17c160eb64b0cd676&t=20260110205007',
+        statBonus: { maxHealth: 25 }
+      },
+      {
+        id: 't3_encounter', tier: 3, levelReq: 5, name: '近接遭遇', ppCost: 2,
+        flavor: '死線に近づくほどアドレナリンが噴出し、脚に力がみなぎる。',
+        buffs: ['体力が低いほど移動速度が少し速くなる。'], debuffs: [],
+        icon: './public/icons/perks/t3_encounter.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_encounter.webp?rev=3f04dd5f655f8a122da73771867ae6cc&t=20260110205014',
+        statBonus: { sprintSpeed: 8, special: '低HP時速度アップ' }
+      },
+      {
+        id: 't3_firstresponder', tier: 3, levelReq: 5, name: '第一対応者', ppCost: 2,
+        flavor: '命を救う衛生兵。しかし自分自身の防護は極めて脆くなる。',
+        buffs: ['瀕死状態のプレイヤーを回復する能力を獲得(CT:5分、経験値・クレジット獲得)。'],
+        debuffs: ['全ての非致死ダメージが致死ダメージに変わる。'],
+        icon: './public/icons/perks/t3_firstresponder.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_firstresponder.webp?rev=f3a0ccb88cccce07ae0070194a61a0b9&t=20260110205019',
+        statBonus: { special: '救護能力(全被弾が致死化)' }
+      },
+
+      // TIER IV (Lvl 10, 3 PP)
+      {
+        id: 't4_mech3', tier: 4, levelReq: 10, name: 'メカニックIII', ppCost: 3,
+        flavor: '完全静音給油のプロフェッショナル。スラッシャーに気取られず発電機を回す。',
+        buffs: ['バッテリー挿入後に燃料を注いでも騒音が鳴らない。', '燃料注入失敗時の大音を無効化。', '燃料注入とバッテリー挿入のクレジットが倍。'], debuffs: [],
+        icon: './public/icons/perks/t4_mech3.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_mech3.webp?rev=fcf7f029779f3e788bc1d00c55196b6a&t=20260110205203',
+        statBonus: { fuelSpeed: 50, special: '給油騒音完全無効化' }
+      },
+      {
+        id: 't4_lightfoot2', tier: 4, levelReq: 10, name: '軽い足取りII', ppCost: 3,
+        flavor: '気配の完全隠蔽。ロッカーの開閉音すら消し去るステルスマスター。',
+        buffs: ['自身の足音の大きさが50%減少する。', 'ロッカーの出入りが完全に無音になる。'],
+        debuffs: ['移動速度が5%減少。'],
+        icon: './public/icons/perks/t4_lightfoot2.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_lightfoot2.webp?rev=8271f92f948ad217d0d986c8bf991a44&t=20260110205211',
+        statBonus: { sprintSpeed: -5, special: 'ロッカー出入り完全無音' }
+      },
+      {
+        id: 't4_batter', tier: 4, levelReq: 10, name: 'バッターアップ', ppCost: 3,
+        flavor: 'スラッシャーを怯ませる強打者。戦闘に特化する代償として精密作業が苦手。',
+        buffs: ['スラッシャーをスタンさせると僅かに回復し、短時間加速する。', 'スタン成功時にボーナスEXPとクレジット獲得。'],
+        debuffs: ['給油とバッテリーのスキルチェックが難化する。'],
+        icon: './public/icons/perks/t4_batter.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Batter_Up_perk_icon.webp?rev=a3b2d00c51b8187540cedc1862eaa53e&t=20260110205218',
+        statBonus: { special: 'スタン成功時加速＆回復' }
+      },
+      {
+        id: 't4_glutton', tier: 4, levelReq: 10, name: 'グルトン', ppCost: 3,
+        flavor: 'エナジーの代謝を持続させる。ドリンクや薬品の恩恵を長く保つ。',
+        buffs: ['消耗アイテムの効果時間が50%減少するのが遅くなる（持続時間延長）。'],
+        debuffs: ['回復アイテムの効果が50%減少する。'],
+        icon: './public/icons/perks/t4_glutton.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_glutton.webp?rev=76882ff392f6f0692b6f410356b7e7db&t=20260110205224',
+        statBonus: { special: 'バフ持続時間+50%' }
+      },
+      {
+        id: 't4_account', tier: 4, levelReq: 10, name: '会計士', ppCost: 3,
+        flavor: '文書の価値を見抜く鑑定眼。隠された機密のページが微かに囁く。',
+        buffs: ['機密文書からかすかな音が聞こえるようになる。', '機密文書を入手した際の経験値とクレジットが倍になる。'], debuffs: [],
+        icon: './public/icons/perks/t4_account.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_account.webp?rev=25dcce0233321ae46f6f5e889a44ff83&t=20260110205230',
+        statBonus: { special: '機密文書音感知＆報酬2倍' }
+      },
+      {
+        id: 't4_deity', tier: 4, levelReq: 10, name: '神を騙す者', ppCost: 3,
+        flavor: '禁忌の呪具を破壊し、身代わりの守護を味方に授けるトリックスター。',
+        buffs: ['死のお守りを使用し、破壊することで最も近いプレイヤーに一時的なパッシブ死のお守りを付与。'],
+        debuffs: ['自身は死のお守りによる復活が不可能となる。'],
+        icon: './public/icons/perks/t4_deity.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_deity.webp?rev=ac36320b4d5c75d72cf8921a956cc216&t=20260110205236',
+        statBonus: { special: '味方へ死のお守り付与' }
+      },
+
+      // TIER V (Lvl 15, 3 PP)
+      {
+        id: 't5_stealth', tier: 5, levelReq: 15, name: 'ステルス・カモフラージュ', ppCost: 3,
+        flavor: '闇に溶け込み視認を拒絶する。スラッシャーの眼前にいても見失わせる。',
+        buffs: ['Slasherに見つかりにくくなる。'], debuffs: [],
+        icon: './public/icons/perks/t5_stealth.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_stealth.webp?rev=9769353142af080f35ef55ef7c374fda&t=20260110205425',
+        statBonus: { special: 'スラッシャー被発見率大幅低下' }
+      },
+      {
+        id: 't5_rabbit', tier: 5, levelReq: 15, name: 'ウサギの足取り', ppCost: 3,
+        flavor: '罠を踏み抜いても脱出する俊敏さ。トラバサミの脅威を無効化する。',
+        buffs: ['最初に踏んだトラバサミを無効化し、破壊できる。', 'トラバサミがかすかに赤く発光する。'], debuffs: [],
+        icon: './public/icons/perks/t5_rabbit.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_rabbit.webp?rev=b96e1cace58b4036b7a320932f9c2579&t=20260110205431',
+        statBonus: { special: 'トラバサミ1回破壊＆赤発光' }
+      },
+      {
+        id: 't5_athlete', tier: 5, levelReq: 15, name: 'アスリート', ppCost: 3,
+        flavor: '開始直後のロケットダッシュ。初動5分間で盤面のアドバンテージを握る。',
+        buffs: ['ラウンド開始から5分間、全ての行動速度が上がる。'],
+        debuffs: ['重いアイテムを持つとより遅くなる。'],
+        icon: './public/icons/perks/t5_athlete.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_athlete.webp?rev=b2c18d2e229bb38db6125a5eb25eda52&t=20260110205438',
+        statBonus: { sprintSpeed: 15, fuelSpeed: 20 }
+      },
+      {
+        id: 't5_flashlight', tier: 5, levelReq: 15, name: 'エクスタミネーター用の懐中電灯', ppCost: 3,
+        flavor: '長距離照射型の集光ビーム。スイッチ音を立てず遠くの闇を射抜く。',
+        buffs: ['照射距離が2倍になり、点灯・消灯音がslasherに聞こえなくなる。'],
+        debuffs: ['懐中電灯の光線が50%狭くなる。'],
+        icon: './public/icons/perks/t5_flashlight.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_flashlight.webp?rev=da10b993f00892328dc42f7bb6b51c48&t=20260110205445',
+        statBonus: { special: '照射距離2倍＆無音スイッチ' }
+      },
+      {
+        id: 't5_alive', tier: 5, levelReq: 15, name: '窮地', ppCost: 3,
+        flavor: '死の淵で発動する防衛本能。一撃耐えて敵を怯ませ、逃走経路を開く。',
+        buffs: ['健康状態が【普通】以上の時に致死ダメージを受けると1度だけ無効化、5秒無敵と付近のSlasherにスタン・加速付与。'],
+        debuffs: ['消費アイテムの回復量が半減。', '脱出フェーズに入ると、効果が無効化される。'],
+        icon: './public/icons/perks/t5_alive.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_alive.webp?rev=fc9913254c4ddc920094fc6e507465bd&t=20260110205450',
+        statBonus: { special: '致死耐え＆5s無敵スタン加速' }
+      },
+      {
+        id: 't5_scapegoat', tier: 5, levelReq: 15, name: 'スケープゴート', ppCost: 3,
+        flavor: '仲間の盾となる自己犠牲の鏡。味方が受ける傷をすべて我が身で引き受ける。',
+        buffs: ['健康状態かつ他プレイヤーから10m以内の場合、そのプレイヤーが受けるダメージは全て非致死ダメージとして自分に転嫁される。'], debuffs: [],
+        icon: './public/icons/perks/t5_scapegoat.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_scapegoat.webp?rev=538b99b334355bf7789bc0e7ae19ea58&t=20260110205456',
+        statBonus: { special: '10m内味方ダメージ身代わり' }
+      },
+
+      // TIER VI (Lvl 20, 4 PP)
+      {
+        id: 't6_grouch', tier: 6, levelReq: 20, name: 'GROUCH化', ppCost: 4,
+        flavor: 'ロッカーに潜む怪異と化す。燃料を燃料としてではなく、命の糧として飲む。',
+        buffs: ['ロッカーに隠れている間、体力が少しずつ回復する。', '4分毎に燃料を一口飲めて、全ての行動速度を短時間上昇させる。'], debuffs: [],
+        icon: './public/icons/perks/t6_grouch.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_itsmyturntoplayxbox.webp?rev=bf05bfe66a525c766aa3c06f2d833de6&t=20260110205637',
+        statBonus: { special: 'ロッカー内回復＆燃料ガブ飲み加速' }
+      },
+      {
+        id: 't6_zyzz', tier: 6, levelReq: 20, name: 'エクストリーム・バフ', ppCost: 4,
+        flavor: '筋骨隆々の肉体美。重いガソリン缶も軽々運ぶが、被弾したときの痛みは増大する。',
+        buffs: ['重いアイテムを持った時の減速効果が軽減される。'],
+        debuffs: ['すべての被ダメージが50%増加。'],
+        icon: './public/icons/perks/t6_zyzz.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_zyzz.webp?rev=9e55a7aa010ba584d2f46bf97b73cd5c&t=20260110205644',
+        statBonus: { special: '重量減速軽減(被ダメ+50%)' }
+      },
+      {
+        id: 't6_balkan', tier: 6, levelReq: 20, name: 'バルカン・ウォリアー', ppCost: 4,
+        flavor: 'バルカンドリンクの後遺症を克服した戦士。瀕死の硬直を拒絶する。',
+        buffs: ['バルカン・ブーストの後遺症で動けなくならない。'],
+        debuffs: ['バルカン・ブーストの注油速度ボーナスが減少する。'],
+        icon: './public/icons/perks/t6_balkan.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_balkan.webp?rev=503d827aae731b3f9908c51cacee971e&t=20260110205650',
+        statBonus: { special: 'バルカン心不全デバフ無効' }
+      },
+      {
+        id: 't6_lead', tier: 6, levelReq: 20, name: 'リード・ベリー', ppCost: 4,
+        flavor: '鉛のように頑強な腹腔。あらゆる痛みを半減するが、足音は重く響く。',
+        buffs: ['被ダメージ50%減少、ネガティブ効果の減少速度が50%増加。'],
+        debuffs: ['足音の大きさが50%増加する。'],
+        icon: './public/icons/perks/t6_lead.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_lead.webp?rev=acca424367672b1a1adf256d03632c61&t=20260110205656',
+        statBonus: { damageReduction: 50, special: '被ダメ半減＆状態異常50%短縮' }
+      },
+      {
+        id: 't6_john', tier: 6, levelReq: 20, name: 'ソリッド・ジョン', ppCost: 4,
+        flavor: 'ロッカー内に完璧に擬態する技術。スラッシャーが開けても初見は気づかれない。',
+        buffs: ['自身が入っているロッカーを初めて見られた際にだけ殺されない。'], debuffs: [],
+        icon: './public/icons/perks/t6_john.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_john.webp?rev=fc1c6d2f0e1abbf2fef6bee316e4462c&t=20260110205701',
+        statBonus: { special: 'ロッカー初見キル1回回避' }
+      },
+      {
+        id: 't6_freaky', tier: 6, levelReq: 20, name: '異常なドクター', ppCost: 4,
+        flavor: '周囲の生命力を高めるオーラを放つ異端の医師。自身の肉体は極限まで脆く鈍重になる。',
+        buffs: ['半径20m以内の全プレイヤーに軽度ダメージ耐性、回復量25%増、消耗速度10%低下、給油速度25%向上。'],
+        debuffs: ['受ける全ダメージが倍増する。', '移動速度が20%低下する。'],
+        icon: './public/icons/perks/t6_freaky.webp',
+        cdnIcon: 'https://cdn.wikiwiki.jp/to/w/slashco/PERKS/::ref/Perk_freaky.webp?rev=160feaa39899d6b81efaee99129d7a9a&t=20260110205709',
+        statBonus: { fuelSpeed: 25, sprintSpeed: -20, special: '20m範囲全バフオーラ(自身被ダメ倍増)' }
+      }
+    ];
+
+    const TIERS_META = [
+      { tier: 1, label: 'TIER I', lvlReq: '<LVL 1>', ppDesc: '必要 1 PP' },
+      { tier: 2, label: 'TIER II', lvlReq: '<LVL 3>', ppDesc: '必要 2 PP' },
+      { tier: 3, label: 'TIER III', lvlReq: '<LVL 5>', ppDesc: '必要 2 PP' },
+      { tier: 4, label: 'TIER IV', lvlReq: '<LVL 10>', ppDesc: '必要 3 PP' },
+      { tier: 5, label: 'TIER V', lvlReq: '<LVL 15>', ppDesc: '必要 3 PP' },
+      { tier: 6, label: 'TIER VI', lvlReq: '<LVL 20>', ppDesc: '必要 4 PP' },
+    ];
+
+    // アイコン画像コンポーネント (ローカル優先、失敗時CDN自動フォールバック、prop更新検知)
+    function PerkIcon({ perk, className = "w-full h-full object-contain" }) {
+      const [src, setSrc] = useState(perk?.icon || perk?.cdnIcon);
+
+      React.useEffect(() => {
+        setSrc(perk?.icon || perk?.cdnIcon);
+      }, [perk?.id, perk?.icon, perk?.cdnIcon]);
+
+      if (!perk) return null;
+
+      return (
+        <img
+          src={src}
+          alt={perk.name}
+          onError={() => {
+            if (perk.cdnIcon && src !== perk.cdnIcon) {
+              setSrc(perk.cdnIcon);
+            }
+          }}
+          className={className}
+          loading="lazy"
+        />
+      );
+    }
+
+
+    // =========================================================================
+    // 公式Wiki完全準拠 アイテムデータベース (全39種)
+    // =========================================================================
+    const ITEMS_DATA = [
+  {
+    "id": "royal_burger",
+    "name": "Royal Burger",
+    "japaneseName": "ロイヤル・バーガー",
+    "category": "HEAL",
+    "categoryJa": "回復・食料",
+    "cost": 10,
+    "sellPrice": 3,
+    "summary": "即座にHPを5回復する王のバーガー",
+    "description": "王にふさわしい最高峰のバーガー。使用すると即座にサバイバーのHPを5ポイント回復する。",
+    "statBonus": {
+      "healthBonus": 5
+    },
+    "buffs": [
+      "HP即時回復 (+5 HP)"
+    ],
+    "debuffs": [],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/royal_burger.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/b/be/Item_burger.png/revision/latest/scale-to-width-down/180?cb=20250309184117",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "即時回復",
+      "durationSecMin": 0,
+      "durationSecMax": 0,
+      "extendedText": "",
+      "isExtendable": false,
+      "baseHeal": 5
+    }
+  },
+  {
+    "id": "mayonnaise",
+    "name": "Mayonnaise",
+    "japaneseName": "マヨネーズ",
+    "category": "HEAL",
+    "categoryJa": "回復・食料",
+    "cost": 20,
+    "sellPrice": 5,
+    "summary": "即座にHPを10回復する超高カロリー瓶",
+    "description": "ウラン含有が疑われるほど超高カロリーなマヨネーズ。使用すると即座にサバイバーのHPを10ポイント大幅回復する。",
+    "statBonus": {
+      "healthBonus": 10
+    },
+    "buffs": [
+      "HP超大幅回復 (+10 HP)"
+    ],
+    "debuffs": [],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/mayonnaise.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/4/4e/Mayonnaise.png/revision/latest/scale-to-width-down/180?cb=20240801034215",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "即時回復",
+      "durationSecMin": 0,
+      "durationSecMax": 0,
+      "extendedText": "",
+      "isExtendable": false,
+      "baseHeal": 10
+    }
+  },
+  {
+    "id": "cookie",
+    "name": "Cookie",
+    "japaneseName": "クッキー",
+    "category": "HEAL",
+    "categoryJa": "回復・給油",
+    "cost": 15,
+    "sellPrice": 4,
+    "summary": "HP3回復 ＆ 給油速度2倍(+100%)・給油報酬2倍",
+    "description": "覚醒物質入りのジャンボクッキー。HPを3回復し、80〜120秒間給油速度が2倍(+100%)になり給油クレジット報酬が2倍になる。Sidの近くで使用すると60秒間無力化（懐柔）できる。",
+    "statBonus": {
+      "healthBonus": 3,
+      "fuelSpeed": 100
+    },
+    "buffs": [
+      "HP回復 (+3 HP)",
+      "給油速度 +100% (80〜120秒間2倍速)",
+      "給油獲得クレジット2倍",
+      "Sid懐柔効果 (60秒間)"
+    ],
+    "debuffs": [
+      "Sidの聴覚30m内で使用時怒り上昇 (+25〜35)"
+    ],
+    "synergyPerks": [
+      "t1_mech1",
+      "t2_mech2",
+      "t4_mech3",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/cookie.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/7/70/Cookie.png/revision/latest/scale-to-width-down/180?cb=20240801034432",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "80〜120秒",
+      "durationSecMin": 80,
+      "durationSecMax": 120,
+      "extendedText": "160〜240秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 3
+    }
+  },
+  {
+    "id": "dishwasher_salmon",
+    "name": "Dishwasher Salmon",
+    "japaneseName": "食洗機で調理したサーモン",
+    "category": "HEAL",
+    "categoryJa": "回復・給油",
+    "cost": 15,
+    "sellPrice": 4,
+    "summary": "HP3回復 ＆ 給油速度2倍(+100%) (※Sid無効)",
+    "description": "家庭用食洗機で絶妙にスチーム調理されたジューシーなサーモンフィレ。クッキー同様にHP+3回復と給油速度+100%を付与（Sidへの懐柔効果はなし）。",
+    "statBonus": {
+      "healthBonus": 3,
+      "fuelSpeed": 100
+    },
+    "buffs": [
+      "HP回復 (+3 HP)",
+      "給油速度 +100% (80〜120秒間2倍速)",
+      "給油獲得クレジット2倍"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t1_mech1",
+      "t2_mech2",
+      "t4_mech3",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/dishwasher_salmon.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/b/bb/Item_dishsalmon.png/revision/latest/scale-to-width-down/180?cb=20241205022224",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": {
+      "durationText": "80〜120秒",
+      "durationSecMin": 80,
+      "durationSecMax": 120,
+      "extendedText": "160〜240秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 3
+    }
+  },
+  {
+    "id": "orange_jello",
+    "name": "Orange Jello",
+    "japaneseName": "オレンジゼリー",
+    "category": "HEAL",
+    "categoryJa": "回復・防御",
+    "cost": 20,
+    "sellPrice": 5,
+    "summary": "HP3回復 ＆ 40〜80秒間 被ダメージを「1」に固定",
+    "description": "怪しげなオレンジゼリー。使用するとHPが3回復し、40〜80秒間受けるすべてのダメージを「1」に激減させる（被ダメ超大幅軽減）。デバフとして視界が低下する。",
+    "statBonus": {
+      "healthBonus": 3,
+      "damageReduction": 75
+    },
+    "buffs": [
+      "HP回復 (+3 HP)",
+      "被ダメージ「1」固定 (実質75〜90%軽減)",
+      "40〜80秒間持続"
+    ],
+    "debuffs": [
+      "視界悪化デバフ"
+    ],
+    "synergyPerks": [
+      "t6_lead",
+      "t3_heavy",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/orange_jello.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/a/a4/Item_jello.png/revision/latest/scale-to-width-down/180?cb=20241205021916",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "40〜80秒",
+      "durationSecMin": 40,
+      "durationSecMax": 80,
+      "extendedText": "80〜160秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 3
+    }
+  },
+  {
+    "id": "pot_of_greed",
+    "name": "Pot of Greed",
+    "japaneseName": "強欲な壺",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "手持ち時 常時移動速度 4.5 m/s (+12.5%向上)",
+    "description": "手に持っている間、常時移動速度が基準4.0m/sから4.5m/s（+12.5%）へ引き上げられる。スラッシャーが5m以内に接近すると、所持クレジットを半分消費してマップ内ランダム位置に強制緊急テレポートする。",
+    "statBonus": {
+      "sprintSpeed": 12.5,
+      "fixedSpeed": 4.5
+    },
+    "buffs": [
+      "常時移動速度 4.5 m/s (+12.5%)",
+      "危機回避緊急テレポート (5m以内接近時)"
+    ],
+    "debuffs": [
+      "テレポート時 所持クレジット半減 & 使用不可化"
+    ],
+    "synergyPerks": [
+      "t5_athlete",
+      "t1_hyper"
+    ],
+    "icon": "./public/icons/items/pot_of_greed.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/0a/Item_jug.png/revision/latest/scale-to-width-down/180?cb=20241205020419",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "rhino_pill",
+    "name": "Rhino Pill",
+    "japaneseName": "ライノ・ピル",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 25,
+    "sellPrice": 6,
+    "summary": "移動速度 +2.5% ＆ 重い荷物の減速無効化",
+    "description": "ガソリンスタンドで買える怪しい精力錠剤。220〜260秒間、移動速度が×1.025（+2.5%）向上し、重い目標アイテム運搬時の減速デバフを完全に無効化する。",
+    "statBonus": {
+      "sprintSpeed": 2.5
+    },
+    "buffs": [
+      "移動速度 +2.5%",
+      "重荷アイテム運搬時の移動速度低下を完全無効化",
+      "持続時間: 220〜260秒"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t5_athlete",
+      "t1_mech1",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/rhino_pill.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/07/Item_rhino.png/revision/latest/scale-to-width-down/180?cb=20250309185140",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "220〜260秒",
+      "durationSecMin": 220,
+      "durationSecMax": 260,
+      "extendedText": "440〜520秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "horse_electrolytes",
+    "name": "Horse Electrolytes",
+    "japaneseName": "馬用電解質",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 25,
+    "sellPrice": 6,
+    "summary": "ライノ・ピル同等：速度+2.5% ＆ 重荷減速無効化",
+    "description": "5ポンドの馬用電解質バケツ。ライノ・ピルと同等の性能を持ち、移動速度+2.5%および重荷運搬時の移動減速を無効化する。",
+    "statBonus": {
+      "sprintSpeed": 2.5
+    },
+    "buffs": [
+      "移動速度 +2.5%",
+      "重荷運搬減速無効化",
+      "持続時間: 220〜260秒"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t5_athlete",
+      "t1_mech1",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/horse_electrolytes.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/f/f0/Horse_Electrolyes_icon.png/revision/latest/scale-to-width-down/180?cb=20250804161831",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": {
+      "durationText": "220〜260秒",
+      "durationSecMin": 220,
+      "durationSecMax": 260,
+      "extendedText": "440〜520秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "the_rock",
+    "name": "The Rock",
+    "japaneseName": "石ころ",
+    "category": "SPEED",
+    "categoryJa": "速度・隠密",
+    "cost": 30,
+    "sellPrice": 8,
+    "summary": "足音完全消音（ステルス） ＆ 移動速度 -10% (スピード狂で減速無効化可)",
+    "description": "プルトニウムの塊。手持ち時は移動足音が完全に無音化されるが、放射線と重量により移動速度が10%低下（3.6 m/s）する。※「スピード狂」パークで減速デバフを完全無効化可能！",
+    "statBonus": {
+      "sprintSpeed": -10,
+      "fixedSpeed": 3.6
+    },
+    "buffs": [
+      "移動足音を完全無音化 (スラッシャー聴覚回避)"
+    ],
+    "debuffs": [
+      "移動速度 -10% (通常走歩行 3.6 m/s に低下)"
+    ],
+    "synergyPerks": [
+      "t2_addict",
+      "t3_lightfoot",
+      "t5_stealth",
+      "t2_shadow"
+    ],
+    "icon": "./public/icons/items/the_rock.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/0b/Rock.png/revision/latest/scale-to-width-down/180?cb=20240801034536",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "cinnamon_stick",
+    "name": "Cinnamon Stick",
+    "japaneseName": "シナモンスティック",
+    "category": "SPEED",
+    "categoryJa": "速度・隠密",
+    "cost": 30,
+    "sellPrice": 8,
+    "summary": "石ころ同等：足音完全消音 ＆ 移動速度 -10% (スピード狂で減速無効化可)",
+    "description": "パトロン専用アイテム（石ころの同等品）。手持ち時足音完全無音、移動速度-10%。※「スピード狂」パークで減速デバフを完全無効化可能！",
+    "statBonus": {
+      "sprintSpeed": -10,
+      "fixedSpeed": 3.6
+    },
+    "buffs": [
+      "足音完全無音化"
+    ],
+    "debuffs": [
+      "移動速度 -10%"
+    ],
+    "synergyPerks": [
+      "t2_addict",
+      "t3_lightfoot",
+      "t5_stealth"
+    ],
+    "icon": "./public/icons/items/cinnamon_stick.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/02/Item_cinnamon.png/revision/latest/scale-to-width-down/180?cb=20241205022142",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "milk_jug",
+    "name": "Milk Jug",
+    "japaneseName": "牛乳ジャグ",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "20〜30秒間、走行速度 6.0 m/s (+50%) に超急加速",
+    "description": "コカイン混入が疑われる生乳ジャグ。使用すると20〜30秒間、走歩行速度が爆発的に向上し 6.0 m/s（+50%）に達する。Thirstyを宥める効果もある。",
+    "statBonus": {
+      "sprintSpeed": 50,
+      "fixedSpeed": 6.0
+    },
+    "buffs": [
+      "爆発的超加速: 6.0 m/s (+50%超高速)",
+      "持続時間: 20〜30秒",
+      "Thirsty宥め効果"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t2_addict",
+      "t5_athlete",
+      "t1_adr",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/milk_jug.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/3/34/Milkjug.png/revision/latest/scale-to-width-down/180?cb=20240801034319",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "20〜30秒",
+      "durationSecMin": 20,
+      "durationSecMax": 30,
+      "extendedText": "40〜60秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "ready_soda",
+    "name": "READY Soda",
+    "japaneseName": "READYドリンク",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 5,
+    "sellPrice": 1,
+    "summary": "45〜60秒間、走行速度 6.5 m/s (+62.5%) に超加速",
+    "description": "JPテスター・翻訳者感謝記念の特製ソーダ。使用すると45〜60秒間、走歩行速度が 6.5 m/s（全スラッシャーを凌駕する最高レベルの速度）に達する。",
+    "statBonus": {
+      "sprintSpeed": 62.5,
+      "fixedSpeed": 6.5
+    },
+    "buffs": [
+      "超高速移動: 6.5 m/s (+62.5%爆速逃走)",
+      "持続時間: 45〜60秒間"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t2_addict",
+      "t5_athlete",
+      "t1_adr",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/ready_soda.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/5/57/Icon_readysoda.png/revision/latest/scale-to-width-down/180?cb=20241205023138",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": {
+      "durationText": "45〜60秒",
+      "durationSecMin": 45,
+      "durationSecMax": 60,
+      "extendedText": "90〜120秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "balkan_boost",
+    "name": "Balkan Boost",
+    "japaneseName": "バルカンブースト",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 170,
+    "sellPrice": 43,
+    "summary": "132秒間 給油4倍速(+300%) ＆ 移動速度+11m/s (終了時重篤デバフ)",
+    "description": "飲むとユーロビートと共に限界突破する劇薬。使用から32秒後に発動し、132秒間移動速度が+11 m/s、給油速度が4倍(+300%)になる。効果終了後は残りのラウンド中移動速度が2.5 m/sに激減、最大HPが1に固定され、アイテム使用が不能になる極大リスクを伴う。",
+    "statBonus": {
+      "sprintSpeed": 275,
+      "fuelSpeed": 300,
+      "fixedSpeed": 15.0
+    },
+    "buffs": [
+      "給油速度 4倍速 (+300%)",
+      "極限移動速度 (+11 m/s 加算)",
+      "バッテリー感電即死回避"
+    ],
+    "debuffs": [
+      "132秒後: 移動速度 2.5 m/s に低下",
+      "最大HPが1に固定",
+      "以降アイテム消費不可"
+    ],
+    "synergyPerks": [
+      "t6_balkan",
+      "t1_mech1",
+      "t4_mech3",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/balkan_boost.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/4/46/Item_balkan.png/revision/latest/scale-to-width-down/180?cb=20241205021716",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "132秒",
+      "durationSecMin": 132,
+      "durationSecMax": 132,
+      "extendedText": "264秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "rascal_rage",
+    "name": "Rascal Rage",
+    "japaneseName": "ラスカル・レイジ",
+    "category": "SPEED",
+    "categoryJa": "速度・加速",
+    "cost": 170,
+    "sellPrice": 43,
+    "summary": "バルカンブースト同等：給油4倍速 ＆ +11m/s加速",
+    "description": "心停止寸前のプレワークアウトパウダー。バルカンブーストと同等の極限加速と給油4倍速をもたらすが、終了後に重篤なデバフを受ける。",
+    "statBonus": {
+      "sprintSpeed": 275,
+      "fuelSpeed": 300,
+      "fixedSpeed": 15.0
+    },
+    "buffs": [
+      "給油速度 4倍速 (+300%)",
+      "極限移動速度 (+11 m/s 加算)"
+    ],
+    "debuffs": [
+      "132秒後: 速度2.5m/s低下 & HP1固定 & アイテム不可"
+    ],
+    "synergyPerks": [
+      "t6_balkan",
+      "t1_mech1",
+      "t4_mech3",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/rascal_rage.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/b/b6/Item_rage.png/revision/latest/scale-to-width-down/180?cb=20250309184135",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": {
+      "durationText": "132秒",
+      "durationSecMin": 132,
+      "durationSecMax": 132,
+      "extendedText": "264秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "airport_jungle_juice",
+    "name": "Airport Jungle Juice",
+    "japaneseName": "エアポート・ジャングル・ジュース",
+    "category": "SPEED",
+    "categoryJa": "速度・カオス",
+    "cost": 25,
+    "sellPrice": 6,
+    "summary": "30〜40秒間、移動速度が 2.0〜8.0 m/s のランダムに変動",
+    "description": "空港で調合された呪われし謎液体。使用すると30〜40秒間、移動速度が 2.0 m/s（鈍足デバフ）〜 8.0 m/s（超高速バフ）の範囲でランダムに激変する。",
+    "statBonus": {
+      "special": "ランダム速度変動 (2.0〜8.0 m/s)"
+    },
+    "buffs": [
+      "ランダム速度加速 (最大 8.0 m/s)"
+    ],
+    "debuffs": [
+      "ランダム速度鈍足 (最低 2.0 m/s)"
+    ],
+    "synergyPerks": [
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/airport_jungle_juice.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/f/f1/Juice.png/revision/latest/scale-to-width-down/180?cb=20240801034603",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "30〜40秒",
+      "durationSecMin": 30,
+      "durationSecMax": 40,
+      "extendedText": "60〜80秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "costco_frozen_pizza",
+    "name": "Costco Frozen Pizza",
+    "japaneseName": "コストコの冷凍ピザ",
+    "category": "DEFENSE",
+    "categoryJa": "防御・盾",
+    "cost": 20,
+    "sellPrice": 5,
+    "summary": "手持ち時、即死以外の攻撃・被弾・爆発を完全無効化 (盾ガード)",
+    "description": "カチコチに凍ったピザの箱。ライオットシールドとして機能し、手持ち中は即死攻撃以外のダメージを完全に防ぐ。銃撃なら最大4発まで耐久可能。「健康」パークでHP 2回復アイテムとして摂食可能。",
+    "statBonus": {
+      "damageReduction": 100
+    },
+    "buffs": [
+      "手持ち時: 被弾・銃撃・爆発を完全ガード (無敵シールド)",
+      "最大1〜4回被弾まで耐久可能"
+    ],
+    "debuffs": [
+      "破壊される消耗品",
+      "CRITICAL状態時は防御不可"
+    ],
+    "synergyPerks": [
+      "t1_healthy1",
+      "t3_healthy2",
+      "t6_lead"
+    ],
+    "icon": "./public/icons/items/costco_frozen_pizza.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/6/6c/Item_pizza.png/revision/latest/scale-to-width-down/180?cb=20241205021158",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "nokia_shield",
+    "name": "Nokia Shield",
+    "japaneseName": "ノキア・シールド",
+    "category": "DEFENSE",
+    "categoryJa": "防御・盾",
+    "cost": 20,
+    "sellPrice": 5,
+    "summary": "ピザ同等：手持ち時 即死以外の攻撃を完全無効化",
+    "description": "人類史上最強の硬度を誇るノキア製ライオットシールド。コストコの冷凍ピザと同等の性能を持ち、即死以外の被弾ダメージを完全に防ぐ。",
+    "statBonus": {
+      "damageReduction": 100
+    },
+    "buffs": [
+      "手持ち時: 即死以外の被弾完全無効化",
+      "最大1〜4回被弾耐久"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t1_healthy1",
+      "t3_healthy2",
+      "t6_lead"
+    ],
+    "icon": "./public/icons/items/nokia_shield.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/0a/Item_nokia.png/revision/latest/scale-to-width-down/180?cb=20241205022419",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "deathward",
+    "name": "Deathward",
+    "japaneseName": "死のお守り",
+    "category": "DEFENSE",
+    "categoryJa": "防御・蘇生",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "死亡時に消費し、即死回避 ＆ マップ転送・HP5で復活 (1回のみ)",
+    "description": "ドクロを模した呪いの護符。即死ダメージを受けた際に自動で消費され、即死を回避してHP5で安全圏へテレポート蘇生する。1ラウンドに1回のみ発動可能。「神を騙す者」パークで使用破壊し味方に蘇生を譲渡可能。",
+    "statBonus": {
+      "special": "致死ダメージ回避＆HP5蘇生"
+    },
+    "buffs": [
+      "致死ダメージ回避 (1撃即死耐性)",
+      "HP 5 で即時蘇生・安全圏テレポート"
+    ],
+    "debuffs": [
+      "1ラウンド1回のみ消費発動"
+    ],
+    "synergyPerks": [
+      "t4_deity",
+      "t5_alive",
+      "t6_lead"
+    ],
+    "icon": "./public/icons/items/deathward.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/c/cf/Item_deathward.png/revision/latest/scale-to-width-down/180?cb=20240801034348",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "reverse_card",
+    "name": "Reverse Card",
+    "japaneseName": "リバースカード",
+    "category": "DEFENSE",
+    "categoryJa": "防御・蘇生",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "死のお守り同等：致死ダメージ回避 ＆ HP5蘇生",
+    "description": "パトロン専用アイテム（死のお守りの同等品）。即死ダメージ回避、HP5で蘇生テレポート。「神を騙す者」パークで使用破壊し味方に蘇生を譲渡可能。",
+    "statBonus": {
+      "special": "致死ダメージ回避＆HP5蘇生"
+    },
+    "buffs": [
+      "致死ダメージ回避",
+      "HP 5 蘇生＆テレポート"
+    ],
+    "debuffs": [
+      "1回消費"
+    ],
+    "synergyPerks": [
+      "t4_deity",
+      "t5_alive",
+      "t6_lead"
+    ],
+    "icon": "./public/icons/items/reverse_card.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/2/27/Item_unoreverse.png/revision/latest/scale-to-width-down/180?cb=20241205022329",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "pocket_sand",
+    "name": "Pocket Sand",
+    "japaneseName": "ポケットサンド (砂の袋)",
+    "category": "STUN",
+    "categoryJa": "スタン・妨害",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "開封して落とすと2m以内のスラッシャーを目眩まし＆スタン",
+    "description": "細かい砂の入った袋。開封して地面に落とすと、周囲2m以内のスラッシャーを目眩まし・スタン状態に追い込む。スラッシャーの怒りゲージを少し上昇させる。",
+    "statBonus": {
+      "special": "スラッシャー近接スタン (2m範囲)"
+    },
+    "buffs": [
+      "2m以内のスラッシャーを目眩まし・即時スタン"
+    ],
+    "debuffs": [
+      "スラッシャーの怒り上昇 (+8〜16%)"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/pocket_sand.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/3/35/Pocketsand.png/revision/latest/scale-to-width-down/180?cb=20240801034509",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "pocket_fentanyl",
+    "name": "Pocket Fentanyl",
+    "japaneseName": "麻薬入りの袋",
+    "category": "STUN",
+    "categoryJa": "スタン・妨害",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "スラッシャーをスタン ＆ 怒り値を永続でMAX(100)にする危険品",
+    "description": "ポケットサンド同様にスラッシャーをスタンさせられるが、激怒させスラッシャーのANGER値を永続的に100（最大値）へと引き上げてしまう極めて危険な劇物。",
+    "statBonus": {
+      "special": "スラッシャー即時スタン"
+    },
+    "buffs": [
+      "スラッシャー即時スタン"
+    ],
+    "debuffs": [
+      "スラッシャーの怒り値が永久にMAX(100)に固定"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/pocket_fentanyl.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/6/65/Item_pocketfent2.png/revision/latest/scale-to-width-down/180?cb=20241205022702",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "beer_keg",
+    "name": "Beer Keg",
+    "japaneseName": "ビール樽",
+    "category": "STUN",
+    "categoryJa": "スタン・爆破",
+    "cost": 20,
+    "sellPrice": 5,
+    "summary": "投擲後バウンドして破裂、周囲8mのスラッシャーをスタン",
+    "description": "不安定な爆発物。投擲すると低重力でバウンドし、数回の衝撃後に大爆発を起こす。8m以内のスラッシャーを長時間スタンさせる（至近距離のプレイヤーにも最大3の非致死ダメージ）。",
+    "statBonus": {
+      "special": "8m範囲爆破スタン"
+    },
+    "buffs": [
+      "広範囲 (8m) スラッシャー爆破スタン"
+    ],
+    "debuffs": [
+      "至近距離のプレイヤーに最大3非致死ダメージ"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/beer_keg.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/5/57/Item_beer.png/revision/latest/scale-to-width-down/180?cb=20250309184520",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "ijed",
+    "name": "IJED",
+    "japaneseName": "IJED (即席爆弾)",
+    "category": "STUN",
+    "categoryJa": "スタン・爆破",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "起爆後5秒で爆破、5m以内のスラッシャーをスタン",
+    "description": "5.5秒のタイマー付き即席爆弾。5秒後に強烈な爆発を起こし、5m以内のスラッシャーをスタンさせ、6m以内のプレイヤーに最大7の致死性ダメージを与える。",
+    "statBonus": {
+      "special": "5m爆破スタン (タイマー式)"
+    },
+    "buffs": [
+      "5m範囲スラッシャー強力スタン"
+    ],
+    "debuffs": [
+      "6m以内の味方に最大7ダメージの危険性"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/ijed.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/e/ee/Item_ijed.png/revision/latest/scale-to-width-down/180?cb=20241205022741",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "watermelon",
+    "name": "Watermelon",
+    "japaneseName": "スイカ (爆破スイカ)",
+    "category": "STUN",
+    "categoryJa": "スタン・爆破",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "IJED同等：起爆後5秒で爆破スタン",
+    "description": "IJEDのリスキン限定アイテム。可愛い見た目ながら5秒後に強烈な爆破を起こし、スラッシャーをスタンさせる。",
+    "statBonus": {
+      "special": "5m爆破スタン"
+    },
+    "buffs": [
+      "5m範囲スラッシャー強力スタン"
+    ],
+    "debuffs": [
+      "味方への致死ダメージ危険性あり"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/watermelon.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/d/db/Item_melon.png/revision/latest/scale-to-width-down/180?cb=20241205023408",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "the_porchlight",
+    "name": "The Porchlight",
+    "japaneseName": "ポーチライト",
+    "category": "STUN",
+    "categoryJa": "スタン・照明",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "20,000W超光量で40秒点灯、10m以内の敵を連続スタン",
+    "description": "20,000Wの超絶大出力電球。設置・使用から5秒後に発光が極限に達し、35秒間、周囲10m以内のスラッシャーを連続してスタン・行動不能に追い込む強力な迎撃兵器。",
+    "statBonus": {
+      "special": "10m範囲 連続スタン (35秒間)"
+    },
+    "buffs": [
+      "10m以内のスラッシャーを連続スタン (35秒間完全制圧)",
+      "暗所の大規模照明"
+    ],
+    "debuffs": [
+      "発動まで5秒のラグあり"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/the_porchlight.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/0/09/Item_porchlight.png/revision/latest/scale-to-width-down/180?cb=20241205022820",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "px_emc",
+    "name": "Px-EMC",
+    "japaneseName": "Px-EMC (電磁スタン銃)",
+    "category": "STUN",
+    "categoryJa": "スタン・兵器",
+    "cost": 180,
+    "sellPrice": 45,
+    "summary": "遠距離からスラッシャーを射撃スタン (バッターで強化)",
+    "description": "Exterminatorの武器庫から持ち出された電磁スタン銃。遠距離からスラッシャーを安全にスタン可能。25%の確率でジャム(不発)が発生し、発射後は200秒の長クールダウンを要する。「バッターアップ」パークで不発率(15%)とCT(150秒)を大幅改善可能。",
+    "statBonus": {
+      "special": "遠距離射撃スタン"
+    },
+    "buffs": [
+      "遠距離からスラッシャーを安全にスタン可能",
+      "強打者パークで不発率減少＆CT短縮"
+    ],
+    "debuffs": [
+      "25%の確率でジャム(不発)発生",
+      "発射後200秒の長クールダウン"
+    ],
+    "synergyPerks": [
+      "t4_batter"
+    ],
+    "icon": "./public/icons/items/px_emc.webp",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/e/e6/Item_vorgun.webp/revision/latest/scale-to-width-down/180?cb=20251109075956",
+    "group": "COLLAB",
+    "groupJa": "コラボアイテム",
+    "durationData": null
+  },
+  {
+    "id": "proxy_locator",
+    "name": "Proxy-Locator",
+    "japaneseName": "プロキシー・ロケーター",
+    "category": "RECON",
+    "categoryJa": "索敵・探知",
+    "cost": 0,
+    "sellPrice": 0,
+    "summary": "15m以内のアイテム・ストア品を音で探知",
+    "description": "旧式探知機。電源を入れると、15m以内にある未所持のアイテム（ストア品、空き瓶等）を検知し、距離が近づくほど間隔の短いビープ音（1.3〜0.4秒間隔）でナビゲートする。",
+    "statBonus": {
+      "special": "15m範囲アイテム音響ソナー"
+    },
+    "buffs": [
+      "15m以内の目標アイテム・ストア品を音響探知"
+    ],
+    "debuffs": [
+      "ビープ音はスラッシャーにも聞こえるため位置バレ注意"
+    ],
+    "synergyPerks": [
+      "t2_treasure"
+    ],
+    "icon": "./public/icons/items/proxy_locator.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/6/69/Item_radar.png/revision/latest/scale-to-width-down/180?cb=20241205020250",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "newport_menthols",
+    "name": "Newport Menthols",
+    "japaneseName": "ニューポート・メンソール",
+    "category": "RECON",
+    "categoryJa": "索敵・暗視",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "140〜200秒間、完全暗視（ナイトビジョン）を獲得",
+    "description": "1箱丸ごと食べると暗視能力が手に入る謎メンソール煙草。使用すると140〜200秒間、暗闇の中でも昼間のように明るく見渡せるナイトビジョン効果が持続する。",
+    "statBonus": {
+      "special": "暗視ナイトビジョン (140〜200秒)"
+    },
+    "buffs": [
+      "完全暗視効果 (暗闇でも視界鮮明)",
+      "持続時間: 140〜200秒"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/newport_menthols.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/6/68/Item_newports.png/revision/latest/scale-to-width-down/180?cb=20241205021832",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "140〜200秒",
+      "durationSecMin": 140,
+      "durationSecMax": 200,
+      "extendedText": "280〜400秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "lab_grown_meat",
+    "name": "Lab-Grown Meat",
+    "japaneseName": "ラボで育てられた肉 (培養肉)",
+    "category": "RECON",
+    "categoryJa": "索敵・透視",
+    "cost": 30,
+    "sellPrice": 8,
+    "summary": "視界低下の代わりに80〜100秒間、敵の位置を赤く透視",
+    "description": "ナチョチーズのかかった培養肉。食べると視界が低下する代わりに、80〜100秒間、スラッシャーの周囲に赤いオーラが表示され、壁越しでも常時位置を補足・透視できるようになる。",
+    "statBonus": {
+      "special": "敵オーラ透視 (80〜100秒)"
+    },
+    "buffs": [
+      "スラッシャーの現在地を常時赤オーラ透視 (80〜100秒)"
+    ],
+    "debuffs": [
+      "周囲の視界悪化"
+    ],
+    "synergyPerks": [
+      "t1_panicsense",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/lab_grown_meat.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/7/72/Item_meat.png/revision/latest/scale-to-width-down/180?cb=20250309185503",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "80〜100秒",
+      "durationSecMin": 80,
+      "durationSecMax": 100,
+      "extendedText": "160〜200秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "flint_michigan_water",
+    "name": "Flint Michigan Water",
+    "japaneseName": "フリント・ミシガンの水道水",
+    "category": "RECON",
+    "categoryJa": "索敵・透視",
+    "cost": 80,
+    "sellPrice": 20,
+    "summary": "壁越しにアイテムの位置を短時間透視",
+    "description": "鉛入りのフリント水道水。飲むとアイテムのオーラを壁越しに複数回透視できるようになり、目標回収を加速させる。",
+    "statBonus": {
+      "special": "アイテム壁越し透視"
+    },
+    "buffs": [
+      "アイテムの壁越し透視ハイライト"
+    ],
+    "debuffs": [],
+    "synergyPerks": [
+      "t1_mech1",
+      "t2_treasure"
+    ],
+    "icon": "./public/icons/items/flint_michigan_water.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/9/90/Flint_Michigan_Water_icon.png/revision/latest/scale-to-width-down/180?cb=20250802163217",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "b_gone_soda",
+    "name": "B-GONE Soda",
+    "japaneseName": "B-GONEソーダ",
+    "category": "RECON",
+    "categoryJa": "隠密・不可視",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "飲用から3〜5秒後、10秒間スラッシャーから完全不可視化",
+    "description": "致死量のアスパルテームで甘味づけされたソーダ。飲むと3〜5秒のタイムラグを経て、10秒間スラッシャーから完全に姿が見えなくなる（透明化）。チェイス中の緊急離脱に最適。",
+    "statBonus": {
+      "special": "完全透明化 (10秒間)"
+    },
+    "buffs": [
+      "スラッシャーから完全不可視化 (チェイス強制中断)",
+      "持続時間: 10秒"
+    ],
+    "debuffs": [
+      "飲用から発動まで3〜5秒のチャージラグあり"
+    ],
+    "synergyPerks": [
+      "t5_stealth",
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/b_gone_soda.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/a/af/Item_soda.png/revision/latest/scale-to-width-down/180?cb=20241205020603",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "10秒",
+      "durationSecMin": 10,
+      "durationSecMax": 10,
+      "extendedText": "20秒 (2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  },
+  {
+    "id": "25_gram_benadryl",
+    "name": "25 Gram Benadryl",
+    "japaneseName": "25Gのベナドリル",
+    "category": "RECON",
+    "categoryJa": "隠密・特殊",
+    "cost": 60,
+    "sellPrice": 15,
+    "summary": "敵から完全不可視化 (※The Hat Manと蜘蛛が出現する狂気)",
+    "description": "1200錠分の抗ヒスタミン剤。飲むとラウンド終了まで既存スラッシャーから完全不可視になるが、強烈な幻覚と幻聴が発生し、15〜26匹の毒蜘蛛が湧き、さらに裏ボス「The Hat Man」が召喚されて命を狙ってくる。生還できればボーナスクレジットを獲得できる。",
+    "statBonus": {
+      "special": "スラッシャー完全不可視 ＆ Hat Man召喚"
+    },
+    "buffs": [
+      "既存スラッシャーからラウンド終了まで完全不可視化",
+      "生還時ボーナスクレジット獲得 (+25C〜)"
+    ],
+    "debuffs": [
+      "視界・聴覚の重篤な狂気デバフ",
+      "The Hat Man出現",
+      "噛まれると1ダメージの蜘蛛が15〜26匹出現"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/25_gram_benadryl.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/9/9d/Item_benadryl.png/revision/latest/scale-to-width-down/180?cb=20241205020710",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "master_lock_607",
+    "name": "Master Lock 607",
+    "japaneseName": "マスターロック607",
+    "category": "TOOL",
+    "categoryJa": "ツール",
+    "cost": 5,
+    "sellPrice": 2,
+    "summary": "閉じた扉の錠前を強行破壊 (50%成功、2C獲得)",
+    "description": "頑丈な南京錠。叩きつけることでドアの鍵を50%の確率で破壊・開錠し、解錠ごとに2クレジットを獲得する。「マクナリーの手」パーク装備で耐久減少が0.4→0.15に激減し破損確率も低下する。",
+    "statBonus": {
+      "special": "ドア解錠 ＆ 2C獲得"
+    },
+    "buffs": [
+      "閉じたドアを強行突破開錠",
+      "解錠成功ごとに 2 クレジット獲得",
+      "「マクナリーの手」で耐久強化"
+    ],
+    "debuffs": [
+      "耐久値が尽きると破損する可能性あり"
+    ],
+    "synergyPerks": [
+      "t2_mcnally"
+    ],
+    "icon": "./public/icons/items/master_lock_607.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/8/89/Master_Lock_607_icon.png/revision/latest/scale-to-width-down/180?cb=20250730194515",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "evil_jonkler_cart",
+    "name": "Evil Jonkler Cart",
+    "japaneseName": "ジョングラー・カート",
+    "category": "TOOL",
+    "categoryJa": "ツール・陽動",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "スピーカー音でスラッシャーを強制誘導する陽動装置",
+    "description": "狂気の爆音スピーカー。起動するとスラッシャーが強制的にチェイス状態となり、このアイテムを破壊しに向かう。作動中はスラッシャーの怒りが毎秒1%上昇する。",
+    "statBonus": {
+      "special": "スラッシャー強制誘導・陽動"
+    },
+    "buffs": [
+      "スラッシャーを狙った位置へ強制誘導・陽動"
+    ],
+    "debuffs": [
+      "作動中スラッシャーの怒りが毎秒1%上昇"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/evil_jonkler_cart.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/7/72/Item_cart.png/revision/latest/scale-to-width-down/180?cb=20241205021036",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "broken_radio",
+    "name": "Broken Radio",
+    "japaneseName": "壊れたラジオ",
+    "category": "TOOL",
+    "categoryJa": "ツール・陽動",
+    "cost": 50,
+    "sellPrice": 13,
+    "summary": "ジョングラー・カート同等：敵を誘導する陽動装置",
+    "description": "古い壊れたラジオ。ジョングラー・カート同様に爆音を流してスラッシャーを強制的にアイテムへ誘導・陽動する。",
+    "statBonus": {
+      "special": "スラッシャー強制誘導・陽動"
+    },
+    "buffs": [
+      "スラッシャー強制誘導・陽動"
+    ],
+    "debuffs": [
+      "作動中スラッシャー怒り上昇"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/broken_radio.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/4/46/Item_radio.png/revision/latest/scale-to-width-down/180?cb=20250309184128",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "train_horn",
+    "name": "Train Horn",
+    "japaneseName": "電車のクラクション",
+    "category": "TOOL",
+    "categoryJa": "ツール・陽動",
+    "cost": 25,
+    "sellPrice": 5,
+    "summary": "大音量でスラッシャーを引き寄せる (再利用可能/CT20s)",
+    "description": "近所迷惑極まりない列車用警笛。使用すると凄まじい大音量を放ち、スラッシャーを自分の位置へと引き寄せる。20秒のクールダウン後に何度でも再利用可能。味方を逃すための囮役に最適。",
+    "statBonus": {
+      "special": "スラッシャー音響陽動 (再利用可)"
+    },
+    "buffs": [
+      "再利用可能な音響囮ツール (クールダウン20秒)"
+    ],
+    "debuffs": [
+      "自身の位置にスラッシャーが接近する危険性"
+    ],
+    "synergyPerks": [
+      "t5_scapegoat"
+    ],
+    "icon": "./public/icons/items/train_horn.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/2/2f/Item_trainhorn.png/revision/latest/scale-to-width-down/180?cb=20241205023257",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "the_baby",
+    "name": "The Baby",
+    "japaneseName": "呪われた人形",
+    "category": "TOOL",
+    "categoryJa": "ツール・脱出",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "自傷1〜5ダメージを受け、マップ内ランダム位置に即座脱出",
+    "description": "呪われたブードゥー人形。使用すると自身に1〜5の非致死ダメージを受け、マップ上の安全なランダム地点へ瞬時にテレポートする。袋小路に追い詰められた際の最終脱出手段。",
+    "statBonus": {
+      "special": "緊急テレポート脱出"
+    },
+    "buffs": [
+      "瞬時にマップ内ランダム位置へ脱出テレポート"
+    ],
+    "debuffs": [
+      "使用時に1〜5ダメージの代償"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/the_baby.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/6/62/Baby.png/revision/latest/scale-to-width-down/180?cb=20240801034630",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": null
+  },
+  {
+    "id": "boykisser",
+    "name": "Boykisser",
+    "japaneseName": "ボーイキッシャー",
+    "category": "TOOL",
+    "categoryJa": "ツール・脱出",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "呪われた人形同等：自傷ダメージを受け緊急テレポート",
+    "description": "パトロン限定アイテム。呪われた人形と同様に自身に少量のダメージを受けてマップのランダム位置にテレポートする。",
+    "statBonus": {
+      "special": "緊急テレポート脱出"
+    },
+    "buffs": [
+      "マップ内ランダム位置へ脱出テレポート"
+    ],
+    "debuffs": [
+      "使用時にダメージの代償"
+    ],
+    "synergyPerks": [],
+    "icon": "./public/icons/items/boykisser.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/3/32/Item_boykiss.png/revision/latest/scale-to-width-down/180?cb=20241205022015",
+    "group": "PATRON",
+    "groupJa": "パトロンアイテム",
+    "durationData": null
+  },
+  {
+    "id": "red_40_vial",
+    "name": "Red 40 Vial",
+    "japaneseName": "赤い着色料の薬瓶 (レッド40)",
+    "category": "TOOL",
+    "categoryJa": "ツール・強化",
+    "cost": 40,
+    "sellPrice": 10,
+    "summary": "消費アイテムのバフ効果時間を2分間フリーズ・延長",
+    "description": "非人道的な量の赤色40号着色料。飲むと2分間、移動速度以外のステータスバフの減少カウントダウンを停止（フリーズ）させ、効果時間を大幅に引き延ばす。",
+    "statBonus": {
+      "special": "バフ持続時間を2分間凍結・延長"
+    },
+    "buffs": [
+      "発動中の消費アイテム効果時間を120秒間フリーズ・超延長"
+    ],
+    "debuffs": [
+      "視界が赤く染まる"
+    ],
+    "synergyPerks": [
+      "t4_glutton"
+    ],
+    "icon": "./public/icons/items/red_40_vial.png",
+    "cdnIcon": "https://static.wikia.nocookie.net/slashco-vr/images/1/13/Item_red40.png/revision/latest/scale-to-width-down/180?cb=20250309185832",
+    "group": "DEFAULT",
+    "groupJa": "誰でも使えるアイテム",
+    "durationData": {
+      "durationText": "120秒 (2分)",
+      "durationSecMin": 120,
+      "durationSecMax": 120,
+      "extendedText": "240秒 (4分 / 2倍持続)",
+      "isExtendable": true,
+      "baseHeal": 0
+    }
+  }
+];
+
+    // 3大分類タブ (「すべて」は排除し、通常/パトロン/コラボの3択)
+    const ITEM_GROUPS = [
+      { id: 'DEFAULT', label: '通常アイテム' },
+      { id: 'PATRON', label: 'パトロン' },
+      { id: 'COLLAB', label: 'コラボ' },
+    ];
+
+    // アイテムアバター画像 (ローカル優先 ＆ CDNフォールバック付き)
+    function ItemIcon({ item, className = "w-full h-full object-contain" }) {
+      const [src, setSrc] = useState(item?.icon || item?.cdnIcon);
+      const [failed, setFailed] = useState(false);
+
+      React.useEffect(() => {
+        setSrc(item?.icon || item?.cdnIcon);
+        setFailed(false);
+      }, [item?.id, item?.icon, item?.cdnIcon]);
+
+      if (!item) return null;
+
+      const handleError = () => {
+        if (item.cdnIcon && src !== item.cdnIcon) {
+          setSrc(item.cdnIcon);
+        } else {
+          setFailed(true);
+        }
+      };
+
+      if (failed || !src) {
+        return (
+          <div className="w-full h-full rounded-lg bg-zinc-900 border border-zinc-700 flex flex-col items-center justify-center p-0.5 text-center font-mono text-zinc-400">
+            
+            <span className="text-[7px] font-bold truncate max-w-full">{item.name.slice(0, 4)}</span>
+          </div>
+        );
+      }
+
+      return (
+        <img
+          src={src}
+          alt={item.japaneseName || item.name}
+          onError={handleError}
+          className={className}
+          loading="lazy"
+        />
+      );
+    }
+
+    // =========================================================================
+    // パーク ＆ アイテム 総合シミュレーター
+    // =========================================================================
+    function PerkSimulatorView() {
+      // 装備中パークID一覧 (初期状態: 未選択 [])
+      const [equippedPerkIds, setEquippedPerkIds] = useState([]);
+      // 装備中アイテムID (手持ちスロット: 最大1個, 初期状態: null)
+      const [equippedItemId, setEquippedItemId] = useState(null);
+
+      // 詳細プレビュー選択 (パーク または アイテム)
+      const [previewPerkId, setPreviewPerkId] = useState(null);
+      const [previewItemId, setPreviewItemId] = useState(null);
+
+      // 左側サブタブ: 'perks' (パークツリー) | 'items' (アイテム一覧)
+      const [activeSubTab, setActiveSubTab] = useState('perks');
+
+      // アイテム分類フィルター ('DEFAULT' | 'PATRON' | 'COLLAB') 初期値: 通常アイテム
+      const [selectedItemGroup, setSelectedItemGroup] = useState('DEFAULT');
+      const [itemSearchQuery, setItemSearchQuery] = useState('');
+
+      const [ppAlertMessage, setPpAlertMessage] = useState(null);
+      const [isCopied, setIsCopied] = useState(false);
+
+      const maxPP = 15;
+
+      // プレビュー中パーク
+      const previewPerk = useMemo(() => {
+        if (!previewPerkId) return null;
+        return PERKS_DATA.find(p => p.id === previewPerkId) || null;
+      }, [previewPerkId]);
+
+      // プレビュー中アイテム
+      const previewItem = useMemo(() => {
+        if (!previewItemId) return null;
+        return ITEMS_DATA.find(it => it.id === previewItemId) || null;
+      }, [previewItemId]);
+
+      // 装備中パーク一覧
+      const equippedPerkList = useMemo(() => {
+        return equippedPerkIds.map(id => PERKS_DATA.find(p => p.id === id)).filter(Boolean);
+      }, [equippedPerkIds]);
+
+      // 装備中アイテム (1個)
+      const equippedItem = useMemo(() => {
+        if (!equippedItemId) return null;
+        return ITEMS_DATA.find(it => it.id === equippedItemId) || null;
+      }, [equippedItemId]);
+
+      // 消費PP計算 (最大15PP)
+      const totalPPCost = useMemo(() => {
+        return equippedPerkList.reduce((acc, curr) => acc + curr.ppCost, 0);
+      }, [equippedPerkList]);
+
+      const remainingPP = maxPP - totalPPCost;
+
+      // アイテム購入クレジット総額 (1スロット分)
+      const totalItemCost = useMemo(() => {
+        return equippedItem ? (equippedItem.cost || 0) : 0;
+      }, [equippedItem]);
+
+      // パークによるアイテム効果変化フラグ（グルトン、健全など）
+      const isGluttonActive = useMemo(() => equippedPerkIds.includes('t4_glutton'), [equippedPerkIds]);
+      const isHealthy1 = useMemo(() => equippedPerkIds.includes('t1_healthy1'), [equippedPerkIds]);
+      const isHealthy2 = useMemo(() => equippedPerkIds.includes('t3_healthy2'), [equippedPerkIds]);
+      const isSlug = useMemo(() => equippedPerkIds.includes('t1_slug'), [equippedPerkIds]);
+      const isSpeedAddictActive = useMemo(() => equippedPerkIds.includes('t2_addict'), [equippedPerkIds]);
+      const isBalkanWarriorActive = useMemo(() => equippedPerkIds.includes('t6_balkan'), [equippedPerkIds]);
+      const isMerchantActive = useMemo(() => equippedPerkIds.includes('t3_merchant'), [equippedPerkIds]);
+      const isBatterUpActive = useMemo(() => equippedPerkIds.includes('t4_batter'), [equippedPerkIds]);
+      const isMcNallyActive = useMemo(() => equippedPerkIds.includes('t2_mcnally'), [equippedPerkIds]);
+      const isDeitySwindlerActive = useMemo(() => equippedPerkIds.includes('t4_deity'), [equippedPerkIds]);
+      const isLeadBellyActive = useMemo(() => equippedPerkIds.includes('t6_lead'), [equippedPerkIds]);
+      const isZyzzActive = useMemo(() => equippedPerkIds.includes('t6_zyzz'), [equippedPerkIds]);
+      const isMukbangActive = useMemo(() => equippedPerkIds.includes('t2_mukbang'), [equippedPerkIds]);
+
+      // アイテムの計算後効果（持続時間延長・回復補正）を算出する関数
+      const getItemCalculatedStats = (item) => {
+        if (!item) return null;
+        const dur = item.durationData;
+        let displayDuration = dur ? dur.durationText : null;
+        let isDurationBoosted = false;
+
+        const isSpeedBuffItem = item.id === 'milk_jug' || item.id === 'ready_soda';
+        if (dur && dur.isExtendable) {
+          if (isGluttonActive && isSpeedAddictActive && isSpeedBuffItem) {
+            // グルトン(2.0x) × スピード狂(0.75x) = 1.5倍持続
+            displayDuration = `${Math.round(dur.durationSecMin * 1.5)}〜${Math.round(dur.durationSecMax * 1.5)}秒 (グルトン×スピード狂: 1.5倍持続)`;
+            isDurationBoosted = true;
+          } else if (isGluttonActive) {
+            displayDuration = dur.extendedText; // e.g. "160〜240秒 (2倍持続)"
+            isDurationBoosted = true;
+          } else if (isSpeedAddictActive && isSpeedBuffItem) {
+            // スピード狂: 速度バフ持続25%減少 (0.75x)
+            displayDuration = `${Math.round(dur.durationSecMin * 0.75)}〜${Math.round(dur.durationSecMax * 0.75)}秒 (スピード狂: -25%)`;
+          }
+        }
+
+        // 回復量の計算 (健全、グルトン等による補正)
+        let baseHealVal = dur?.baseHeal || item.statBonus?.healthBonus || null;
+        if (item.id === 'costco_frozen_pizza' && isHealthy1) {
+          baseHealVal = 2; // 健康パークでピザ摂食可能 (HP 2回復)
+        }
+        let calculatedHeal = baseHealVal;
+        let isHealModified = false;
+        if (calculatedHeal) {
+          let mult = 1.0;
+          if (isGluttonActive) mult *= 0.5;
+          if (isSlug) mult *= 0.5;
+          if (isHealthy1) mult *= 1.5;
+          if (isHealthy2) mult *= 1.5;
+          if (mult !== 1.0) {
+            calculatedHeal = +(calculatedHeal * mult).toFixed(1);
+            isHealModified = true;
+          }
+        }
+
+        return {
+          displayDuration,
+          isDurationBoosted,
+          calculatedHeal,
+          isHealModified
+        };
+      };
+
+      // 装備中アイテムの計算後ステータス
+      const equippedItemStats = useMemo(() => {
+        return getItemCalculatedStats(equippedItem);
+      }, [equippedItem, isGluttonActive, isHealthy1, isHealthy2, isSlug, isSpeedAddictActive]);
+
+      // プレビュー中アイテムの計算後ステータス
+      const previewItemStats = useMemo(() => {
+        return getItemCalculatedStats(previewItem);
+      }, [previewItem, isGluttonActive, isHealthy1, isHealthy2, isSlug, isSpeedAddictActive]);
+
+      // 総合ビルドステータス計算 (パーク ＋ アイテム合算)
+      const buildStats = useMemo(() => {
+        let totalFuelSpeed = 0;
+        let totalSprintSpeed = 0;
+        let totalHealthBonus = 0;
+        let totalDamageReduction = 0;
+        const specialPassives = [];
+
+        // 1. パーク効果
+        equippedPerkList.forEach(perk => {
+          if (perk.statBonus?.fuelSpeed) totalFuelSpeed += perk.statBonus.fuelSpeed;
+          if (perk.statBonus?.sprintSpeed) {
+            let sp = perk.statBonus.sprintSpeed;
+            // スピード狂による軽い足取り(I & II)の減速ペナルティ無効化！
+            if (isSpeedAddictActive && (perk.id === 't3_lightfoot' || perk.id === 't4_lightfoot2')) {
+              sp = 0; // 減速無効化
+            }
+            totalSprintSpeed += sp;
+          }
+          if (perk.statBonus?.maxHealth) totalHealthBonus += perk.statBonus.maxHealth;
+          if (perk.statBonus?.damageReduction) totalDamageReduction += perk.statBonus.damageReduction;
+          if (perk.statBonus?.special) specialPassives.push({ source: perk.name, text: perk.statBonus.special });
+        });
+
+        // リード・ベリー (-50%被ダメ) と エクストリーム・バフ (+50%被ダメ) の相殺計算
+        if (isLeadBellyActive && isZyzzActive) {
+          totalDamageReduction = 0; // 軽減と増加が相殺
+        } else if (isZyzzActive) {
+          totalDamageReduction -= 50; // 被ダメ50%増加
+        }
+
+        // 2. アイテム効果 (1個)
+        let hasShield = false;
+        if (equippedItem) {
+          const isBalkanItem = equippedItem.id === 'balkan_boost' || equippedItem.id === 'rascal_rage';
+          if (equippedItem.statBonus?.fuelSpeed) {
+            if (isBalkanItem && isBalkanWarriorActive) {
+              // バルカン・ウォリアー効果: 注油速度ボーナス減少 (+300% → +150%)
+              totalFuelSpeed += 150;
+            } else {
+              totalFuelSpeed += equippedItem.statBonus.fuelSpeed;
+            }
+          }
+          if (equippedItem.statBonus?.sprintSpeed) {
+            let itemSp = equippedItem.statBonus.sprintSpeed;
+            // スピード狂による石ころ・シナモンの減速(-10%)無効化！
+            const isRock = equippedItem.id === 'the_rock' || equippedItem.id === 'cinnamon_stick';
+            if (isSpeedAddictActive && isRock) {
+              itemSp = 0;
+            }
+            totalSprintSpeed += itemSp;
+          }
+          if (equippedItem.statBonus?.healthBonus) {
+            const h = equippedItemStats?.calculatedHeal ?? equippedItem.statBonus.healthBonus;
+            totalHealthBonus += h;
+          }
+          if (equippedItem.statBonus?.damageReduction) {
+            if (equippedItem.statBonus.damageReduction === 100) hasShield = true;
+            totalDamageReduction += equippedItem.statBonus.damageReduction;
+          }
+          if (equippedItem.statBonus?.special) specialPassives.push({ source: equippedItem.japaneseName, text: equippedItem.statBonus.special });
+        }
+
+        totalDamageReduction = Math.min(100, totalDamageReduction);
+
+        // 実効移動速度計算 (サバイバー通常走行 4.0 m/s 基準)
+        const effectiveSpeedVal = +(4.0 * (1 + totalSprintSpeed / 100)).toFixed(2);
+        const effectiveSpeed = `${effectiveSpeedVal} m/s`;
+
+        return {
+          totalFuelSpeed,
+          totalSprintSpeed,
+          effectiveSpeed,
+          totalHealthBonus,
+          totalDamageReduction,
+          hasShield,
+          specialPassives
+        };
+      }, [equippedPerkList, equippedItem, equippedItemStats, isBalkanWarriorActive, isSpeedAddictActive, isLeadBellyActive, isZyzzActive]);
+
+      // 発動中バフ一覧 (パーク ＋ アイテム ＋ シナジー)
+      const activeBuffList = useMemo(() => {
+        const perkBuffs = equippedPerkList.flatMap(p =>
+          p.buffs.map(b => ({ type: 'perk', source: p.name, text: b }))
+        );
+        const itemBuffs = equippedItem
+          ? equippedItem.buffs.map(b => ({ type: 'item', source: equippedItem.japaneseName, text: b }))
+          : [];
+
+        // グルトンによる時間延長バフの明示
+        if (isGluttonActive && equippedItem?.durationData?.isExtendable) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'グルトン×アイテム',
+            text: `「${equippedItem.japaneseName}」の持続時間が2倍（${equippedItemStats?.displayDuration}）に延長中！`
+          });
+        }
+
+        // バルカン・ウォリアーによる後遺症無効化シナジー
+        const isBalkanEquipped = equippedItem?.id === 'balkan_boost' || equippedItem?.id === 'rascal_rage';
+        if (isBalkanWarriorActive && isBalkanEquipped) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'バルカン・ウォリアー×バルカン',
+            text: `「${equippedItem.japaneseName}」の後遺症（瀕死・移動速度低下・HP1固定）を完全無効化！ (給油速度+150%)`
+          });
+        }
+
+        // スピード狂による軽い足取り減速無効化シナジー
+        const hasLightfoot = equippedPerkIds.includes('t3_lightfoot') || equippedPerkIds.includes('t4_lightfoot2');
+        if (isSpeedAddictActive && hasLightfoot) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'スピード狂×軽い足取り',
+            text: '軽い足取りによる移動速度低下（-5%〜-10%）を完全無効化中！'
+          });
+        }
+
+        // スピード狂による石ころ減速無効化シナジー
+        const isRockEquipped = equippedItem?.id === 'the_rock' || equippedItem?.id === 'cinnamon_stick';
+        if (isSpeedAddictActive && isRockEquipped) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'スピード狂×石ころ',
+            text: `「${equippedItem.japaneseName}」による移動速度低下（-10%）を完全無効化中！（足音完全消音のみ適用）`
+          });
+        }
+
+        // バッター、出番だ × Px-EMC シナジー
+        if (isBatterUpActive && equippedItem?.id === 'px_emc') {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'バッター、出番だ×Px-EMC',
+            text: 'Px-EMCの不発率を15%に低減 ＆ クールダウンを約150秒に短縮！'
+          });
+        }
+
+        // マックナリー・ハンズ × マスターロック607
+        if (isMcNallyActive && equippedItem?.id === 'master_lock_607') {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'マックナリー・ハンズ×ロック',
+            text: 'マスターロック607の破損率を10%に激減（耐久値2.67倍） ＆ 開錠時追加ボーナス！'
+          });
+        }
+
+        // 健康 × コストコの冷凍ピザ
+        if (isHealthy1 && equippedItem?.id === 'costco_frozen_pizza') {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: '健康×冷凍ピザ',
+            text: 'カチコチの冷凍ピザを摂食可能（HP 2回復）！'
+          });
+        }
+
+        // リード・ベリー × エクストリーム・バフ
+        if (isLeadBellyActive && isZyzzActive) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: 'リード・ベリー×エクストリーム',
+            text: '被ダメ+50%と-50%が相殺！ 重荷減速軽減とデバフ持続半減を安全に両立！'
+          });
+        }
+
+        // 大食いチャンピオン × 健康
+        if (isMukbangActive && (isHealthy1 || isHealthy2)) {
+          itemBuffs.unshift({
+            type: 'synergy',
+            source: '大食いチャンピオン×健康',
+            text: '半径6m味方全員への回復量を健康パークで+50%〜+100%底上げ中！'
+          });
+        }
+
+        return [...perkBuffs, ...itemBuffs];
+      }, [equippedPerkList, equippedItem, isGluttonActive, isBalkanWarriorActive, isSpeedAddictActive, isBatterUpActive, isMcNallyActive, isHealthy1, isHealthy2, isLeadBellyActive, isZyzzActive, isMukbangActive, equippedItemStats]);
+
+      // 発動中デバフ一覧 (パーク ＋ アイテム)
+      const activeDebuffList = useMemo(() => {
+        const isBalkanEquipped = equippedItem?.id === 'balkan_boost' || equippedItem?.id === 'rascal_rage';
+        const perkDebuffs = equippedPerkList.flatMap(p =>
+          p.debuffs.map(d => ({ type: 'perk', source: p.name, text: d }))
+        );
+        let itemDebuffs = equippedItem
+          ? equippedItem.debuffs.map(d => ({ type: 'item', source: equippedItem.japaneseName, text: d }))
+          : [];
+
+        // バルカン・ウォリアー装備時はバルカンブーストの後遺症デバフを除外
+        if (isBalkanWarriorActive && isBalkanEquipped) {
+          itemDebuffs = itemDebuffs.filter(d => !d.text.includes('132秒後') && !d.text.includes('HP1固定') && !d.text.includes('アイテム'));
+        }
+
+        // スピード狂装備時は軽い足取りおよび石ころの減速デバフを除外
+        let filteredPerkDebuffs = perkDebuffs;
+        if (isSpeedAddictActive) {
+          filteredPerkDebuffs = filteredPerkDebuffs.filter(d => 
+            !(d.source.includes('軽い足取り') && (d.text.includes('移動速度') || d.text.includes('5%') || d.text.includes('10%')))
+          );
+          itemDebuffs = itemDebuffs.filter(d => 
+            !((d.source.includes('石ころ') || d.source.includes('シナモン')) && d.text.includes('移動速度'))
+          );
+        }
+
+        return [...filteredPerkDebuffs, ...itemDebuffs];
+      }, [equippedPerkList, equippedItem, isBalkanWarriorActive, isSpeedAddictActive]);
+
+      // アイテムフィルタリング (通常 / パトロン / コラボ の3大分類切替)
+      const filteredItems = useMemo(() => {
+        return ITEMS_DATA.filter(it => {
+          if (it.group !== selectedItemGroup) return false;
+          if (itemSearchQuery.trim()) {
+            const q = itemSearchQuery.toLowerCase();
+            const hitName = it.name.toLowerCase().includes(q) || (it.japaneseName && it.japaneseName.toLowerCase().includes(q));
+            const hitSummary = it.summary && it.summary.toLowerCase().includes(q);
+            if (!hitName && !hitSummary) return false;
+          }
+          return true;
+        });
+      }, [selectedItemGroup, itemSearchQuery]);
+
+      // パークの装備/解除トグル
+      const handleToggleEquipPerk = (perk) => {
+        setPpAlertMessage(null);
+        if (equippedPerkIds.includes(perk.id)) {
+          setEquippedPerkIds(prev => prev.filter(id => id !== perk.id));
+        } else {
+          if (totalPPCost + perk.ppCost > maxPP) {
+            setPpAlertMessage(`PP不足: 「${perk.name}」は ${perk.ppCost} PP 必要ですが、残り ${remainingPP} PP です。`);
+            setTimeout(() => setPpAlertMessage(null), 3500);
+            return;
+          }
+          setEquippedPerkIds(prev => [...prev, perk.id]);
+        }
+      };
+
+      // アイテムの装備/解除トグル (手持ちスロット: 最大1個)
+      const handleToggleEquipItem = (item) => {
+        if (equippedItemId === item.id) {
+          setEquippedItemId(null);
+        } else {
+          setEquippedItemId(item.id);
+        }
+      };
+
+      // 構成リセット
+      const handleResetBuild = () => {
+        setEquippedPerkIds([]);
+        setEquippedItemId(null);
+        setPreviewPerkId(null);
+        setPreviewItemId(null);
+        setPpAlertMessage(null);
+      };
+
+      // クリップボード共有テキスト生成
+      const handleCopy = () => {
+        const text = `【SlashCO パーク＆アイテム総合ビルド】\n` +
+          `パーク装備数: ${equippedPerkList.length}個 ｜ 消費PP: ${totalPPCost} / ${maxPP} PP (残り: ${remainingPP} PP)\n` +
+          `手持ちアイテム: ${equippedItem ? `${equippedItem.japaneseName} (${equippedItem.name}) [${equippedItem.cost}C]` : 'なし'} ｜ アイテム費用: ${totalItemCost} Credits\n` +
+          (equippedItemStats?.displayDuration ? `アイテム効果持続: ${equippedItemStats.displayDuration}\n` : '') +
+          `--------------------------------\n` +
+          `【装備中パーク】\n` +
+          (equippedPerkList.length > 0 ? equippedPerkList.map(p => `・[TIER ${p.tier}] ${p.name} (${p.ppCost} PP)`).join('\n') : 'なし') +
+          `\n--------------------------------\n` +
+          `【手持ちアイテム】\n` +
+          (equippedItem ? `・${equippedItem.japaneseName} (${equippedItem.name}) [${equippedItem.cost}C]` : 'なし') +
+          `\n--------------------------------\n` +
+          `給油速度ボーナス: +${buildStats.totalFuelSpeed}%\n` +
+          `移動速度ボーナス: ${buildStats.totalSprintSpeed >= 0 ? '+' : ''}${buildStats.totalSprintSpeed}% (実効速度: ${buildStats.effectiveSpeed})\n` +
+          `被ダメージ軽減: ${buildStats.hasShield ? '100% 完全ガード' : buildStats.totalDamageReduction + '%'}\n` +
+          `追加HP補正 / 回復: +${buildStats.totalHealthBonus} HP\n` +
+          `--------------------------------\n` +
+          `【発動中バフ特性】\n` +
+          (activeBuffList.length > 0 ? activeBuffList.map(b => `[+] [${b.type === 'perk' ? 'パーク' : b.type === 'synergy' ? 'シナジー' : 'アイテム'}] ${b.text} (${b.source})`).join('\n') : 'なし') +
+          `\n【発動中デバフ特性】\n` +
+          (activeDebuffList.length > 0 ? activeDebuffList.map(d => `[-] [${d.type === 'perk' ? 'パーク' : 'アイテム'}] ${d.text} (${d.source})`).join('\n') : 'なし (ペナルティなし)');
+
+        navigator.clipboard.writeText(text).then(() => {
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2000);
+        });
+      };
+
+      return (
+        <div className="space-y-5">
+          {/* PP上限オーバーアラート */}
+          {ppAlertMessage && (
+            <div className="bg-red-950/90 border border-red-500/80 text-red-200 px-4 py-3 rounded-2xl flex items-center justify-between shadow-lg shadow-red-950/50">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold font-mono">
+                <span className="font-bold text-red-400 font-mono">[!]</span>
+                <span>{ppAlertMessage}</span>
+              </div>
+              <button
+                onClick={() => setPpAlertMessage(null)}
+                className="text-red-400 hover:text-white text-xs px-2 py-1 rounded"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {/* 総合ステータス概要カード (パークPPは除外して5分割表示) */}
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-zinc-800 pb-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-green-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  総合タクティカル・ステータス (パーク ＆ アイテム合算)
+                </span>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  装備パークと手持ちアイテムの効果がリアルタイムに統合計算されます
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={handleResetBuild}
+                  className="px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-700 hover:border-red-500/60 hover:text-red-400 text-zinc-400 text-xs font-mono font-bold flex items-center gap-1 transition shadow-sm"
+                  title="パークとアイテムをリセット"
+                >
+                  <span className="font-mono text-xs">↺</span>
+                  <span>リセット</span>
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-green-950/80 border border-green-500/60 hover:bg-green-900 text-green-300 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition shadow-sm"
+                >
+                  <span className="font-mono text-xs">{isCopied ? '✓' : ''}</span>
+                  <span>{isCopied ? 'コピー完了！' : 'ビルド構成をコピー'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 5分割メトリクス (パークPPは除外) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 font-mono">
+              {/* 給油速度 */}
+              <div className="bg-black/90 p-3 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                  <span>給油速度</span>
+                  <span className="text-[9px] text-zinc-500">合算</span>
+                </div>
+                <div className="text-lg font-black text-amber-400 mt-1">
+                  +{buildStats.totalFuelSpeed}%
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5 truncate">発電機完了速度</div>
+              </div>
+
+              {/* 移動速度 */}
+              <div className="bg-black/90 p-3 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                  <span>移動速度</span>
+                  <span className="text-cyan-400 font-bold text-[9px]">{buildStats.effectiveSpeed}</span>
+                </div>
+                <div className="text-lg font-black text-cyan-400 mt-1">
+                  {buildStats.totalSprintSpeed >= 0 ? '+' : ''}{buildStats.totalSprintSpeed}%
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5 truncate">基準: 4.0 m/s</div>
+              </div>
+
+              {/* 被ダメ軽減 / ガード */}
+              <div className="bg-black/90 p-3 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                  <span>被ダメ軽減</span>
+                  <span className="text-[9px] text-zinc-500">防御</span>
+                </div>
+                <div className={`text-lg font-black mt-1 ${buildStats.hasShield ? 'text-blue-400 text-sm' : 'text-blue-400'}`}>
+                  {buildStats.hasShield ? '完全ガード' : `${buildStats.totalDamageReduction}%`}
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5 truncate">{buildStats.hasShield ? '非即死攻撃無効' : '耐久ダメージカット'}</div>
+              </div>
+
+              {/* HP補正 */}
+              <div className="bg-black/90 p-3 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                  <span>HP補正/回復</span>
+                  <span className="text-[9px] text-zinc-500">基礎10</span>
+                </div>
+                <div className="text-lg font-black text-emerald-400 mt-1">
+                  +{buildStats.totalHealthBonus} HP
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5 truncate">最大HP/回復ポテンシャル</div>
+              </div>
+
+              {/* アイテム購入費 ＆ 持続時間 */}
+              <div className="bg-black/90 p-3 rounded-xl border border-zinc-800 flex flex-col justify-between">
+                <div className="text-[10px] text-zinc-400 flex items-center justify-between">
+                  <span>アイテム費用</span>
+                  <span className="text-[9px] text-zinc-500">1枠</span>
+                </div>
+                <div className="text-lg font-black text-yellow-400 mt-1">
+                  {totalItemCost} <span className="text-xs text-zinc-500">C</span>
+                </div>
+                <div className="text-[9px] text-zinc-400 mt-0.5 truncate">
+                  {equippedItemStats?.displayDuration ? `持続: ${equippedItemStats.displayDuration}` : (equippedItem ? '1個装備中' : '未装備')}
+                </div>
+              </div>
+            </div>
+
+            {/* 装備中アイテム ＆ 装備中パークのクイックバー */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-2 border-t border-zinc-800/80">
+              
+              {/* 手持ちアイテムスロット (最大1個) */}
+              <div className="md:col-span-5 bg-black/60 rounded-xl p-3 border border-zinc-800/80 space-y-2">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-zinc-300 font-bold flex items-center gap-1.5">
+                    手持ちアイテム (1スロット)
+                  </span>
+                  <span className="text-[10px] text-zinc-500">クリックで詳細プレビュー</span>
+                </div>
+
+                <div>
+                  {equippedItem ? (
+                    <div
+                      onClick={() => {
+                        setPreviewItemId(equippedItem.id);
+                        setPreviewPerkId(null);
+                      }}
+                      className={`cursor-pointer p-2.5 rounded-xl border transition flex items-center justify-between gap-2.5 relative group ${
+                        previewItemId === equippedItem.id
+                          ? 'border-yellow-400 bg-yellow-950/40 ring-1 ring-yellow-400 shadow-md'
+                          : 'border-emerald-500/60 bg-emerald-950/20 hover:border-emerald-400'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black border border-zinc-700 flex items-center justify-center p-0.5">
+                          <ItemIcon item={equippedItem} className="w-full h-full object-contain" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white truncate font-mono">{equippedItem.japaneseName}</span>
+                            <span className="text-[9px] text-zinc-400 font-mono">({equippedItem.name})</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
+                            <span className="text-yellow-400 font-bold">{equippedItem.cost} Credits</span>
+                            <span className="text-zinc-500 font-normal">[{equippedItem.groupJa}]</span>
+                            {equippedItemStats?.displayDuration && (
+                              <span className={`px-1 rounded ${equippedItemStats.isDurationBoosted ? 'bg-amber-950 text-amber-300 font-bold' : 'text-zinc-400'}`}>
+                                {equippedItemStats.displayDuration}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleEquipItem(equippedItem);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/60 text-red-300 text-xs font-mono font-bold transition shrink-0 flex items-center gap-1"
+                        title="手持ちから外す"
+                      >
+                        <span>×</span> 外す
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setActiveSubTab('items')}
+                      className="w-full p-2.5 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 bg-zinc-950/60 hover:bg-zinc-900 text-zinc-500 hover:text-zinc-300 text-xs font-mono flex items-center justify-center gap-2 transition"
+                    >
+                      <span className="text-sm">+</span>
+                      <span className="text-[11px]">手持ちアイテム未装備 (クリックして一覧から選択)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 装備中パークチップス */}
+              <div className="md:col-span-7 bg-black/60 rounded-xl p-3 border border-zinc-800/80 space-y-2">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-zinc-300 font-bold flex items-center gap-1.5">
+                    装備中パーク ({equippedPerkList.length}個)
+                  </span>
+                  <span className="text-[10px] text-zinc-500">クリックで詳細プレビュー</span>
+                </div>
+
+                {equippedPerkList.length === 0 ? (
+                  <div className="text-zinc-600 text-xs font-mono py-2 text-center">
+                    パーク未装備です。下のツリーから選択してください。
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto pr-1">
+                    {equippedPerkList.map(perk => {
+                      const isPreview = previewPerkId === perk.id;
+                      return (
+                        <div
+                          key={perk.id}
+                          onClick={() => {
+                            setPreviewPerkId(perk.id);
+                            setPreviewItemId(null);
+                          }}
+                          className={`cursor-pointer flex items-center gap-1.5 pl-1.5 pr-1 py-1 rounded-lg border text-xs font-mono transition shadow-sm ${
+                            isPreview
+                              ? 'border-green-400 bg-green-950/60 ring-1 ring-green-400 text-white'
+                              : 'border-green-500/50 hover:border-green-400 bg-zinc-900 hover:bg-zinc-800 text-zinc-200'
+                          }`}
+                          title={`${perk.name} の詳細を表示`}
+                        >
+                          <div className="w-5 h-5 rounded overflow-hidden shrink-0 bg-black flex items-center justify-center">
+                            <PerkIcon perk={perk} className="w-full h-full object-contain p-0.5" />
+                          </div>
+                          <span className="text-xs font-semibold">{perk.name}</span>
+                          <span className="text-[10px] text-green-400 font-bold">({perk.ppCost}PP)</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleEquipPerk(perk);
+                            }}
+                            className="w-4 h-4 rounded flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-red-950/60 transition ml-0.5"
+                            title="装備から外す"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* 発動中バフ＆デバフ一覧 */}
+            {(activeBuffList.length > 0 || activeDebuffList.length > 0) && (
+              <div className="pt-2 border-t border-zinc-800/80 grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* バフ */}
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-mono font-bold text-green-400 flex items-center gap-1">
+                    <span>発動中バフ特性 ({activeBuffList.length})</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                    {activeBuffList.map((b, i) => (
+                      <span
+                        key={i}
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded border shadow-sm ${
+                          b.type === 'synergy'
+                            ? 'bg-amber-950/70 border-amber-400/60 text-amber-200 font-bold shadow-amber-500/20'
+                            : b.type === 'item'
+                            ? 'bg-yellow-950/40 border-yellow-500/40 text-yellow-200'
+                            : 'bg-green-950/40 border-green-500/40 text-green-200'
+                        }`}
+                        title={`提供: ${b.source}`}
+                      >
+                        <span className="opacity-75 font-bold mr-1">[{b.source}]</span>
+                        {b.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* デバフ */}
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-mono font-bold text-red-400 flex items-center gap-1">
+                    <span>発動中デバフ特性 ({activeDebuffList.length})</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                    {activeDebuffList.length === 0 ? (
+                      <span className="text-[10px] font-mono text-zinc-500 py-0.5">ペナルティなし</span>
+                    ) : (
+                      activeDebuffList.map((d, i) => (
+                        <span
+                          key={i}
+                          className="text-[10px] font-mono px-2 py-0.5 rounded border bg-red-950/40 border-red-500/40 text-red-200 shadow-sm"
+                          title={`提供: ${d.source}`}
+                        >
+                          <span className="opacity-75 font-bold mr-1">[{d.source}]</span>
+                          {d.text}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* メインセレクター: 左側一覧 (パーク / アイテム 切替) ＆ 右側詳細プレビュー */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            {/* 左側カラム: パークツリー または アイテム一覧 */}
+            <div className="lg:col-span-7 space-y-4">
+              
+              {/* サブタブ切替バー: [パーク一覧 (36種)] / [アイテム一覧 (39種)] */}
+              <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-2.5 flex justify-between items-center gap-2 shadow-xl">
+                <div className="flex bg-black p-1 rounded-xl border border-zinc-800">
+                  <button
+                    onClick={() => setActiveSubTab('perks')}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono transition flex items-center gap-1.5 ${
+                      activeSubTab === 'perks'
+                        ? 'bg-green-500 text-black shadow-md font-black'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    パーク一覧 (全36種)
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab('items')}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono transition flex items-center gap-1.5 ${
+                      activeSubTab === 'items'
+                        ? 'bg-yellow-500 text-black shadow-md font-black'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    アイテム一覧 (全39種)
+                  </button>
+                </div>
+
+                <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">
+                  {activeSubTab === 'perks' ? '自由構成ツリー (15PP)' : '手持ち装備 (1スロット)'}
+                </span>
+              </div>
+
+              {/* サブタブ 1: パークツリー (最上部にパークPP消費メーターを配置) */}
+              {activeSubTab === 'perks' && (
+                <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+                  
+                  {/* パーク一覧上部に設置されたパークPP消費メーター */}
+                  <div className="bg-black/90 rounded-xl p-3.5 border border-zinc-800 space-y-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-mono font-black text-green-400 flex items-center gap-1.5">
+                          パークPP消費: {totalPPCost} / {maxPP} PP
+                        </span>
+                        <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg border ${
+                          remainingPP === 0
+                            ? 'bg-green-950/80 text-green-400 border-green-500/50'
+                            : 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                        }`}>
+                          残り {remainingPP} PP
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-zinc-400 font-mono">
+                        装備中: {equippedPerkList.length} 個 (最大15 PP)
+                      </span>
+                    </div>
+
+                    {/* PPプログレスバー */}
+                    <div className="w-full bg-zinc-950 h-3 rounded-full overflow-hidden relative border border-zinc-800 p-0.5">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          totalPPCost === maxPP
+                            ? 'bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_0_10px_rgba(74,222,128,0.6)]'
+                            : 'bg-gradient-to-r from-green-600 to-emerald-500'
+                        }`}
+                        style={{ width: `${(totalPPCost / maxPP) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                    <span className="text-xs font-mono font-bold text-zinc-400 uppercase tracking-wider">
+                      TIER 1 〜 TIER 6 パークツリー
+                    </span>
+                    <span className="text-[11px] text-zinc-500 font-mono">
+                      クリックで詳細 ｜ ダブルクリックで直接装備/解除
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {TIERS_META.map(t => {
+                      const tierPerks = PERKS_DATA.filter(p => p.tier === t.tier);
+                      const equippedInThisTier = equippedPerkList.filter(p => p.tier === t.tier);
+
+                      return (
+                        <div key={t.tier} className="bg-black/70 rounded-xl p-3 border border-zinc-800 space-y-2">
+                          <div className="flex justify-between items-center text-xs font-mono">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-white tracking-wide">
+                                TIER {t.tier} ({t.cost} PP)
+                              </span>
+                              <span className="text-zinc-500 text-[10px]">
+                                解放: Lvl {t.level}
+                              </span>
+                            </div>
+                            {equippedInThisTier.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-green-400 font-bold text-[10px]">
+                                  {equippedInThisTier.length}個装備中
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-6 gap-2">
+                            {tierPerks.map(perk => {
+                              const isEquipped = equippedPerkIds.includes(perk.id);
+                              const isPreview = previewPerkId === perk.id;
+
+                              return (
+                                <button
+                                  key={perk.id}
+                                  onClick={() => {
+                                    setPreviewPerkId(perk.id);
+                                    setPreviewItemId(null);
+                                  }}
+                                  onDoubleClick={() => handleToggleEquipPerk(perk)}
+                                  className={`aspect-square rounded-lg flex items-center justify-center p-1 transition-all duration-150 relative overflow-hidden ${
+                                    isEquipped
+                                      ? 'border-2 border-green-400 bg-green-950/40 shadow-[0_0_15px_rgba(74,222,128,0.5)] ring-1 ring-green-400'
+                                      : isPreview
+                                      ? 'border-2 border-white bg-zinc-800/80'
+                                      : 'border-2 border-zinc-300/80 bg-black hover:border-white'
+                                  }`}
+                                  title={`${perk.name} (${perk.ppCost} PP) - クリックで詳細、ダブルクリックで装備`}
+                                >
+                                  <PerkIcon perk={perk} className="w-full h-full object-contain p-0.5" />
+                                  {isEquipped && (
+                                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_#4ade80]"></span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* サブタブ 2: アイテム一覧シェルフ (通常 / パトロン / コラボ の3大分類切替) */}
+              {activeSubTab === 'items' && (
+                <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+                  {/* 分類タブ ＆ 検索バー */}
+                  <div className="space-y-3 border-b border-zinc-800 pb-3">
+                    {/* 通常 / パトロン / コラボ 切替タブ */}
+                    <div className="flex flex-wrap gap-2">
+                      {ITEM_GROUPS.map(grp => {
+                        const count = ITEMS_DATA.filter(it => it.group === grp.id).length;
+                        const isSelected = selectedItemGroup === grp.id;
+                        return (
+                          <button
+                            key={grp.id}
+                            onClick={() => setSelectedItemGroup(grp.id)}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-mono transition flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-yellow-500 text-black font-black shadow-md'
+                                : 'bg-black text-zinc-400 hover:text-white border border-zinc-800'
+                            }`}
+                          >
+                            <span>{grp.label}</span>
+                            <span className="text-[10px] opacity-75">({count})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* 検索ボックス */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="アイテム名（日本語・英語）で絞り込み..."
+                        value={itemSearchQuery}
+                        onChange={(e) => setItemSearchQuery(e.target.value)}
+                        className="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-yellow-500 font-mono"
+                      />
+                      {itemSearchQuery && (
+                        <button
+                          onClick={() => setItemSearchQuery('')}
+                          className="absolute right-2.5 top-2 text-zinc-500 hover:text-white text-xs"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* アイテムカード一覧グリッド (アイコン ＋ 名前のみ表示) */}
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 max-h-[600px] overflow-y-auto pr-1">
+                    {filteredItems.map(item => {
+                      const isEquipped = equippedItemId === item.id;
+                      const isPreview = previewItemId === item.id;
+
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setPreviewItemId(item.id);
+                            setPreviewPerkId(null);
+                          }}
+                          className={`group flex flex-col items-center justify-between p-2 rounded-xl border transition-all duration-150 relative text-center aspect-square ${
+                            isPreview
+                              ? 'border-yellow-400 bg-yellow-950/40 ring-2 ring-yellow-400/80 shadow-lg scale-105 z-10'
+                              : isEquipped
+                              ? 'border-emerald-500/80 bg-emerald-950/30 ring-1 ring-emerald-500/50 shadow-md'
+                              : 'border-zinc-800 bg-black hover:border-zinc-500 hover:bg-zinc-900/90'
+                          }`}
+                          title={`${item.japaneseName} (${item.name}) - クリックで右側に詳細表示`}
+                        >
+                          {/* 装備中バッジ */}
+                          {isEquipped && (
+                            <span className="absolute top-1 right-1 px-1 py-0.2 rounded text-[8px] font-mono font-black bg-emerald-400 text-black shadow-sm">
+                              装備中
+                            </span>
+                          )}
+                          {/* 分類表示 */}
+
+                          {/* アイテムアイコン */}
+                          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-lg overflow-hidden flex items-center justify-center p-0.5 group-hover:scale-105 transition mt-1">
+                            <ItemIcon item={item} className="w-full h-full object-contain" />
+                          </div>
+
+                          {/* 名前 (日本語名 ＆ 英語名) - 値段や効果は排除 */}
+                          <div className="w-full mt-1">
+                            <div className={`text-[11px] font-bold font-mono truncate ${
+                              isPreview ? 'text-yellow-400' : isEquipped ? 'text-emerald-400' : 'text-zinc-200 group-hover:text-white'
+                            }`}>
+                              {item.japaneseName}
+                            </div>
+                            <div className="text-[9px] text-zinc-500 font-mono truncate">
+                              {item.name}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* 右側カラム: 詳細プレビュー看板カード (パーク または アイテム) */}
+            <div className="lg:col-span-5 space-y-4">
+              
+              {/* パーク詳細プレビュー */}
+              {previewPerk && (
+                <div key={previewPerk.id} className="bg-black border-2 border-zinc-700 rounded-2xl p-6 shadow-2xl text-center space-y-4 sticky top-5">
+                  <div className="mx-auto w-48 h-48 sm:w-56 sm:h-56 bg-black border-4 border-zinc-200 rounded-xl p-4 flex items-center justify-center relative shadow-inner">
+                    <PerkIcon perk={previewPerk} className="w-full h-full object-contain p-2" />
+                    <span className="absolute top-2 right-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-zinc-800 border border-zinc-600 text-zinc-300">
+                      TIER {previewPerk.tier}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-white font-mono tracking-wide">
+                      [{previewPerk.name}]
+                    </h3>
+                    <div className="text-sm font-bold text-white mt-0.5 tracking-widest font-mono">
+                      {previewPerk.ppCost} PP
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-zinc-400 italic px-4 border-t border-b border-zinc-800 py-2">
+                    {previewPerk.flavor}
+                  </p>
+
+                  <div className="text-left space-y-2 font-mono text-xs">
+                    {previewPerk.buffs.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-green-400">効果・バフ特性:</span>
+                        <ul className="space-y-1 text-green-300/90 pl-1">
+                          {previewPerk.buffs.map((buff, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-green-500 font-bold shrink-0">[+]</span>
+                              <span>{buff}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {previewPerk.debuffs.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[11px] font-bold text-red-400">ペナルティ・デバフ:</span>
+                        <ul className="space-y-1 text-red-300/90 pl-1">
+                          {previewPerk.debuffs.map((deb, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-red-500 font-bold shrink-0">[-]</span>
+                              <span>{deb}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2">
+                    {equippedPerkIds.includes(previewPerk.id) ? (
+                      <button
+                        onClick={() => handleToggleEquipPerk(previewPerk)}
+                        className="w-full py-2.5 rounded-xl bg-red-950 border border-red-500/80 hover:bg-red-900 text-red-300 font-bold font-mono text-xs sm:text-sm transition shadow-lg"
+                      >
+                        構成から外す (PP解放)
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleToggleEquipPerk(previewPerk)}
+                        className="w-full py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-black font-black font-mono text-xs sm:text-sm transition shadow-lg shadow-green-500/20"
+                      >
+                        構成に装備する ({previewPerk.ppCost} PP)
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* アイテム詳細プレビュー (持続時間計算・グルトン連携・全詳細展開) */}
+              {previewItem && (
+                <div key={previewItem.id} className="bg-black border-2 border-yellow-500/50 rounded-2xl p-6 shadow-2xl space-y-4 sticky top-5">
+                  <div className="mx-auto w-44 h-44 sm:w-52 sm:h-52 bg-zinc-950 border-4 border-yellow-500/60 rounded-xl p-4 flex items-center justify-center relative shadow-inner">
+                    <ItemIcon item={previewItem} className="w-full h-full object-contain p-2" />
+                    <span className="absolute top-2 right-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-yellow-950 border border-yellow-500 text-yellow-300">
+                      {previewItem.groupJa}
+                    </span>
+                  </div>
+
+                  <div className="text-center">
+                    <h3 className="text-xl sm:text-2xl font-black text-white font-mono tracking-wide">
+                      {previewItem.japaneseName}
+                    </h3>
+                    <div className="text-xs text-zinc-400 font-mono mt-0.5">
+                      {previewItem.name}
+                    </div>
+                    <div className="flex justify-center items-center gap-3 mt-1.5 text-xs font-mono">
+                      <span className="text-yellow-400 font-bold bg-yellow-950/60 px-2 py-0.5 rounded border border-yellow-500/40">
+                        購入: {previewItem.cost} Credits
+                      </span>
+                      <span className={`px-2 py-0.5 rounded border font-bold ${isMerchantActive ? 'text-amber-300 bg-amber-950/60 border-amber-500/50' : 'text-zinc-400 bg-zinc-900 border-zinc-700'}`}>
+                        売却: {isMerchantActive ? Math.round(previewItem.cost * 0.5) : previewItem.sellPrice} C {isMerchantActive ? '(商人: 50%)' : ''}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* パーク連動: 効果持続時間 ＆ 回復量計算表示 */}
+                  {(previewItemStats?.displayDuration || previewItemStats?.calculatedHeal) && (
+                    <div className="bg-zinc-950 p-2.5 rounded-xl border border-zinc-800 space-y-1.5 text-left">
+                      {previewItemStats.displayDuration && (
+                        <div>
+                          <div className="flex justify-between items-center text-xs font-mono">
+                            <span className="text-zinc-400 flex items-center gap-1">
+                              効果持続時間:
+                            </span>
+                            <span className={`font-bold ${previewItemStats.isDurationBoosted ? 'text-amber-400 font-black' : 'text-zinc-200'}`}>
+                              {previewItemStats.displayDuration}
+                            </span>
+                          </div>
+                          {previewItemStats.isDurationBoosted ? (
+                            <div className="text-[10px] font-mono text-amber-300 bg-amber-950/40 p-1.5 rounded border border-amber-500/40 mt-1 flex items-center gap-1">
+                              <span>【グルトン適用中】効果減衰が50%遅延し、持続時間が2倍（100%延長）に強化中！</span>
+                            </div>
+                          ) : previewItem.durationData?.isExtendable ? (
+                            <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
+                              ※ パーク「グルトン」装備で持続時間が2倍（{previewItem.durationData.extendedText}）に延長可能
+                            </div>
+                          ) : null}
+                          {(previewItem.id === 'balkan_boost' || previewItem.id === 'rascal_rage') && isBalkanWarriorActive && (
+                            <div className="text-[10px] font-mono text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/40 mt-1">
+                              【バルカン・ウォリアー適用中】使用後の瀕死・移動速度低下デバフを完全無効化！ (給油ボーナス: +150%)
+                            </div>
+                          )}
+                          {(previewItem.id === 'the_rock' || previewItem.id === 'cinnamon_stick') && isSpeedAddictActive && (
+                            <div className="text-[10px] font-mono text-cyan-300 bg-cyan-950/40 p-1.5 rounded border border-cyan-500/40 mt-1">
+                              【スピード狂 適用中】移動速度-10%の減速デバフを完全無効化！（足音完全消音のみ享受）
+                            </div>
+                          )}
+                          {previewItem.id === 'px_emc' && isBatterUpActive && (
+                            <div className="text-[10px] font-mono text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/40 mt-1">
+                              【バッター、出番だ適用中】不発（ジャム）率 25% → 15% に低下！ クールダウン 200秒 → 約150秒 に短縮！
+                            </div>
+                          )}
+                          {previewItem.id === 'master_lock_607' && isMcNallyActive && (
+                            <div className="text-[10px] font-mono text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/40 mt-1">
+                              【マックナリー・ハンズ適用中】耐久度約2.67倍（破損率25%→10%） ＆ 開錠成功時ボーナス獲得！
+                            </div>
+                          )}
+                          {previewItem.id === 'costco_frozen_pizza' && isHealthy1 && (
+                            <div className="text-[10px] font-mono text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-500/40 mt-1">
+                              【健康 適用中】頑丈な胃袋により「HP 2 回復」アイテムとして摂食可能！
+                            </div>
+                          )}
+                          {(previewItem.id === 'deathward' || previewItem.id === 'reverse_card') && isDeitySwindlerActive && (
+                            <div className="text-[10px] font-mono text-amber-300 bg-amber-950/40 p-1.5 rounded border border-amber-500/40 mt-1">
+                              【神を騙す者 適用中】使用破壊で味方に身代わり蘇生を譲渡可能（自身の復活は不可）！
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {previewItemStats.calculatedHeal && (
+                        <div className="flex justify-between items-center text-xs font-mono pt-1 border-t border-zinc-800/60">
+                          <span className="text-zinc-400 flex items-center gap-1">
+                            実効回復量:
+                          </span>
+                          <span className={`font-bold ${previewItemStats.isHealModified ? 'text-emerald-400 font-black' : 'text-zinc-200'}`}>
+                            +{previewItemStats.calculatedHeal} HP
+                            {previewItemStats.isHealModified && isGluttonActive && (
+                              <span className="text-[10px] text-red-400 ml-1">(グルトン-50%)</span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 要約 ＆ 詳細説明 */}
+                  <div className="border-t border-b border-zinc-800 py-2.5 text-left space-y-1.5">
+                    <div className="text-xs font-mono font-bold text-yellow-400">
+                      {previewItem.summary}
+                    </div>
+                    <p className="text-xs text-zinc-300 font-mono leading-relaxed">
+                      {previewItem.description}
+                    </p>
+                  </div>
+
+                  {/* バフ & デバフ */}
+                  <div className="text-left space-y-2 font-mono text-xs">
+                    {previewItem.buffs.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-green-400">アイテム効果・バフ特性:</span>
+                        <ul className="space-y-1 text-green-300/90 pl-1">
+                          {previewItem.buffs.map((buff, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-green-500 font-bold shrink-0">[+]</span>
+                              <span>{buff}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {previewItem.debuffs.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[11px] font-bold text-red-400">ペナルティ・副作用:</span>
+                        <ul className="space-y-1 text-red-300/90 pl-1">
+                          {previewItem.debuffs.map((deb, i) => (
+                            <li key={i} className="flex items-start gap-1">
+                              <span className="text-red-500 font-bold shrink-0">[-]</span>
+                              <span>{deb}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* パークとのシナジー解説 */}
+                    {previewItem.synergyPerks && previewItem.synergyPerks.length > 0 && (
+                      <div className="pt-2 border-t border-zinc-800 space-y-1">
+                        <span className="text-[11px] font-bold text-cyan-400 flex items-center gap-1">
+                          相乗効果のあるパーク:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {previewItem.synergyPerks.map(pId => {
+                            const p = PERKS_DATA.find(x => x.id === pId);
+                            if (!p) return null;
+                            const isEquipped = equippedPerkIds.includes(p.id);
+                            return (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  setPreviewPerkId(p.id);
+                                  setPreviewItemId(null);
+                                }}
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded border transition ${
+                                  isEquipped
+                                    ? 'bg-green-950 border-green-500 text-green-300 font-bold'
+                                    : 'bg-zinc-900 border-zinc-700 text-zinc-300 hover:text-white'
+                                }`}
+                              >
+                                {p.name} {isEquipped ? '(装備中)' : ''}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 装備ボタン */}
+                  <div className="pt-2">
+                    {equippedItemId === previewItem.id ? (
+                      <button
+                        onClick={() => handleToggleEquipItem(previewItem)}
+                        className="w-full py-2.5 rounded-xl bg-red-950 border border-red-500/80 hover:bg-red-900 text-red-300 font-bold font-mono text-xs sm:text-sm transition shadow-lg"
+                      >
+                        手持ちから外す
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleToggleEquipItem(previewItem)}
+                        className="w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-black font-mono text-xs sm:text-sm transition shadow-lg shadow-yellow-500/20"
+                      >
+                        手持ちアイテムとして装備 (1枠)
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 未選択時の案内プレースホルダー */}
+              {!previewPerk && !previewItem && (
+                <div className="bg-black border-2 border-zinc-800 rounded-2xl p-8 shadow-2xl text-center space-y-4 sticky top-5">
+                  <div className="mx-auto w-24 h-24 bg-zinc-950 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 shadow-inner">
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-black text-white font-mono tracking-wide">
+                      パーク ＆ アイテム未選択
+                    </h3>
+                    <p className="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto font-mono">
+                      左側の一覧から気になるパークやアイテムをクリックすると、詳細・持続時間・バフ効果・相乗効果がここに表示されます。
+                    </p>
+                  </div>
+                  <div className="pt-2 space-y-1 text-[11px] font-mono text-zinc-500 bg-zinc-900/80 p-3 rounded-xl border border-zinc-800 text-left">
+                    <div>・パークPP: パーク一覧の上部で消費状況を確認</div>
+                    <div>・アイテム: 手持ちスロットに1個装備可能</div>
+                    <div>・分類切替: 通常 / パトロン / コラボ</div>
+                    <div>・パーク効果（グルトン等）による持続時間2倍延長も自動計算</div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+
+
+    // =========================================================================
+    // 最上位 App (タブ切替)
+    // =========================================================================
+    function App() {
+      const [activeTab, setActiveTab] = useState('perks'); // 'perks' | 'slashers'
+
+      return (
+        <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-5">
+          {/* 最上部 ナビゲーションヘッダー */}
+          <header className="border border-zinc-800 bg-zinc-900/90 rounded-2xl p-4 sm:p-5 shadow-2xl">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <div className="text-xs font-mono tracking-widest text-green-400 uppercase flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
+                  SlashCo Tactical Operation Portal
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2 mt-1">
+                  <span>SlashCO 総合タクティカル・データベース</span>
+                </h1>
+                <p className="text-zinc-400 text-xs mt-0.5">
+                  全36パークの自由構成シミュレーター ＆ 全19スラッシャーのパラメータ・特性・攻略データベース
+                </p>
+              </div>
+
+              {/* タブ切り替えボタン */}
+              <div className="flex items-center gap-2 bg-black p-1.5 rounded-2xl border border-zinc-800 shadow-inner">
+                <button
+                  onClick={() => setActiveTab('perks')}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all ${
+                    activeTab === 'perks'
+                      ? 'bg-green-500 text-black shadow-lg shadow-green-500/20 scale-102'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                  }`}
+                >
+                  パーク・シミュレーター
+                </button>
+                <button
+                  onClick={() => setActiveTab('slashers')}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 transition-all ${
+                    activeTab === 'slashers'
+                      ? 'bg-red-500 text-black shadow-lg shadow-red-500/20 scale-102'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                  }`}
+                >
+                  スラッシャー図鑑
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* アクティブなタブのビューを表示 */}
+          {activeTab === 'perks' ? <PerkSimulatorView /> : <SlasherDatabaseView />}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
